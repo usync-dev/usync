@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "es2020",
+    "composite": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "verbatimModuleSyntax": true,
+    "jsx": "preserve",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "types": ["node"]
+  }
+}

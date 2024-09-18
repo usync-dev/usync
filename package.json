@@ -1,0 +1,32 @@
+{
+  "name": "usync",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm run clean && pnpm run build:js && pnpm run build:types",
+    "clean": "pnpm run -r clean",
+    "build:types": "pnpm run -r build:types",
+    "build:js": "pnpm run -r build:js",
+    "format": "oxfmt",
+    "release:snapshot": "tsx scripts/release.ts"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "@types/node": "^25.9.2",
+    "del": "^8.0.1",
+    "del-cli": "^7.0.0",
+    "oxfmt": "^0.53.0",
+    "read-package-up": "^12.0.0",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vite": "^7.3.5"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

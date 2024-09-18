@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ESNext", "DOM"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    "noEmit": true,
+    "paths": {
+      "@usync/drive": ["./packages/drive/src/index.ts"],
+      "@usync/oauth2": ["./packages/oauth2/src/index.ts"],
+      "@usync/sync": ["./packages/sync/src/index.ts"],
+      "@usync/oauth2-callback-server": ["./packages/oauth2-callback-server/src/index.ts"]
+    },
+  }
+}
