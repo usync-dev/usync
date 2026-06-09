@@ -9,16 +9,20 @@ export abstract class OAuth2Authorizer {
   protected _accessToken: TokenData | null = null;
   protected _refreshToken: TokenData | null = null;
 
+  public session: { state: string; codeVerifier: string } | undefined;
+
   constructor(
     protected options: IOAuth2Options,
     initialData?: {
       accessToken?: TokenData;
       refreshToken?: TokenData;
+      session?: { state: string; codeVerifier: string };
     },
   ) {
     if (initialData) {
       this.setRefreshToken(initialData.refreshToken);
       this.setAccessToken(initialData.accessToken);
+      this.session = initialData.session;
     }
   }
 

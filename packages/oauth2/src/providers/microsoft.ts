@@ -6,8 +6,6 @@ import { OAuth2Authorizer } from "./base.ts";
  * Ref: https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow
  */
 export class MicrosoftAuthorizer extends OAuth2Authorizer {
-  private session: { state: string; codeVerifier: string } | undefined;
-
   static Scopes = {
     /** Ref: https://learn.microsoft.com/en-us/exchange/client-developer/legacy-protocols/how-to-authenticate-an-imap-pop-smtp-application-by-using-oauth */
     imap: "offline_access https://outlook.office.com/IMAP.AccessAsUser.All",

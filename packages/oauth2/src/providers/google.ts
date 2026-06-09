@@ -9,8 +9,6 @@ const GOOGLE_URL_TOKEN = "https://oauth2.googleapis.com/token";
  * Ref: https://developers.google.com/identity/protocols/oauth2/web-server
  */
 export class GoogleAuthorizer extends OAuth2Authorizer {
-  private session: { state: string; codeVerifier: string } | undefined;
-
   /**
    * Ref: https://developers.google.com/identity/protocols/oauth2/scopes
    */

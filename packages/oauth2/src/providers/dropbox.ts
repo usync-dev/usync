@@ -6,8 +6,6 @@ const DROPBOX_URL_AUTHORIZE = "https://www.dropbox.com/oauth2/authorize";
 const DROPBOX_URL_TOKEN = "https://api.dropbox.com/oauth2/token";
 
 export class DropboxAuthorizer extends OAuth2Authorizer {
-  private session: { state: string; codeVerifier: string } | undefined;
-
   /**
    * Ref: https://www.dropbox.com/developers/documentation/http/documentation
    */
