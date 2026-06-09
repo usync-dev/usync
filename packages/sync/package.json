@@ -20,7 +20,7 @@
     "clean": "del-cli dist tsconfig.tsbuildinfo",
     "build:types": "tsc",
     "build:js": "vite build",
-    "build": "pnpm clean && pnpm /^build:/",
+    "build": "pnpm clean && pnpm build:js && pnpm build:types",
     "prepublishOnly": "pnpm build"
   }
 }
