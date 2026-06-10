@@ -120,9 +120,7 @@ export class Dropbox extends AuthenticatedDriveBase {
     return this.request<Blob>("https://content.dropboxapi.com/2/files/download", {
       method: "POST",
       headers: {
-        "Dropbox-API-Arg": JSON.stringify({
-          path,
-        }),
+        "Dropbox-API-Arg": JSON.stringify({ path }, unicodeReplacer),
       },
       responseType: "blob",
     });
