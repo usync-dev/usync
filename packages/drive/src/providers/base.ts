@@ -1,5 +1,5 @@
-import { type IRequestOptions, simpleRequest, SimpleRequestError } from "../request";
 import { ensureAccessToken, OAuth2Authorizer } from "@usync/oauth2";
+import { type IRequestOptions, simpleRequest, SimpleRequestError } from "../request";
 import type { IAuthConfig, IFilePath, IRemoteFile, IUserInfo } from "../types";
 import { delay } from "../util";
 
@@ -102,16 +102,4 @@ export abstract class AuthenticatedDriveBase extends DriveBase {
   }
 
   abstract getAccount(): Promise<IUserInfo>;
-}
-
-export function unicodeReplacer(_key: string, value: unknown) {
-  if (typeof value === "string") {
-    // Replace all NON-ASCII characters with their Unicode escape sequences
-    return value.replace(/[^\x00-\x7F]/g, function (match) {
-      // Convert the matched character to its Unicode escape sequence
-      return "\\u" + match.codePointAt(0)!.toString(16).padStart(4, "0");
-    });
-  }
-  // Return other types unchanged
-  return value;
 }

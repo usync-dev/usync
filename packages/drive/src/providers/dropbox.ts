@@ -1,5 +1,5 @@
 import type { IFilePath, IRemoteFile } from "../types";
-import { AuthenticatedDriveBase, unicodeReplacer } from "./base";
+import { AuthenticatedDriveBase } from "./base";
 
 interface IDropboxEntry {
   ".tag": "file" | "folder";
@@ -11,6 +11,14 @@ interface IDropboxEntry {
   client_modified?: string;
   server_modified?: string;
   size?: number;
+}
+
+const escRE = /[\u007f-\uffff]/g;
+const escFunc = (m: string) => `\\u${(m.charCodeAt(0) + 0x10000).toString(16).slice(1)}`;
+
+function jsonStringifySafe(obj: unknown) {
+  const string = JSON.stringify(obj);
+  return string.replace(escRE, escFunc);
 }
 
 export class Dropbox extends AuthenticatedDriveBase {
@@ -120,7 +128,9 @@ export class Dropbox extends AuthenticatedDriveBase {
     return this.request<Blob>("https://content.dropboxapi.com/2/files/download", {
       method: "POST",
       headers: {
-        "Dropbox-API-Arg": JSON.stringify({ path }, unicodeReplacer),
+        "Dropbox-API-Arg": jsonStringifySafe({
+          path,
+        }),
       },
       responseType: "blob",
     });
@@ -154,13 +164,10 @@ export class Dropbox extends AuthenticatedDriveBase {
       {
         method: "POST",
         headers: {
-          "Dropbox-API-Arg": JSON.stringify(
-            {
-              path,
-              mode: "overwrite",
-            },
-            unicodeReplacer,
-          ),
+          "Dropbox-API-Arg": jsonStringifySafe({
+            path,
+            mode: "overwrite",
+          }),
           "Content-Type": "application/octet-stream",
         },
         body: data,
