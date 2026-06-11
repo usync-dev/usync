@@ -120,9 +120,10 @@ export class GoogleDrive extends AuthenticatedDriveBase {
 
   async remove(param: IFilePath) {
     const id = await this.resolveId(param);
+    // Returns 204
     await this.request(`files/${id}`, {
       method: "DELETE",
-      responseType: "json",
+      responseType: "blob",
     });
   }
 
