@@ -1,6 +1,7 @@
 {
   "name": "@usync/drive",
   "version": "0.1.4",
+  "license": "ISC",
   "files": [
     "dist"
   ],

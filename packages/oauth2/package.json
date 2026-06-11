@@ -1,6 +1,7 @@
 {
   "name": "@usync/oauth2",
   "version": "0.1.2",
+  "license": "ISC",
   "files": [
     "dist"
   ],
