@@ -33,7 +33,10 @@ export class Dropbox extends AuthenticatedDriveBase {
   }
 
   private getDropboxPath(param: IFilePath | undefined, allowEmpty: boolean) {
-    if (param?.id) return `id:${param.id}`;
+    if (param?.id) {
+      // Dropbox ID has a pattern of `id:${string}`
+      return param.id;
+    }
     let path = param?.path || "";
     // Path must start with `/`
     if (path[0] !== "/") path = `/${path}`;
@@ -98,7 +101,7 @@ export class Dropbox extends AuthenticatedDriveBase {
   }
 
   async *list(parent?: IFilePath) {
-    const path = parent ? this.getDropboxPath(parent, true) : "/";
+    const path = parent ? this.getDropboxPath(parent, true) : "";
     let data = await this.request<{
       cursor: string;
       has_more: boolean;
