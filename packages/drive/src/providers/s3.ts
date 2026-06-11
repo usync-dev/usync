@@ -5,8 +5,8 @@
 // - https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
 // - https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
 import { simpleRequest } from "../request";
-import { XMLParser } from "fast-xml-parser";
 import type { IFilePath, IRemoteFile, IUserInfo } from "../types";
+import { XMLParser } from "../xmlparser";
 import {
   type IRequestFunction,
   type ITypedRequestOptions,
@@ -25,10 +25,6 @@ interface IS3ServerOptions {
 
 const EMPTY_HASH = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 const encoder = new TextEncoder();
-const parser = new XMLParser({
-  ignoreAttributes: false,
-  removeNSPrefix: true,
-});
 
 function toArray<T>(value: T | T[] | undefined): T[] {
   if (!value) return [];
@@ -105,7 +101,7 @@ function getLastName(key: string) {
   return last || "";
 }
 
-function parseListResponse(xml: string) {
+function parseListResponse(parser: XMLParser, xml: string) {
   const doc = parser.parse(xml) as {
     ListBucketResult?: {
       Contents?:
@@ -339,6 +335,7 @@ export class S3 extends AuthenticatedDriveBase {
   }
 
   async *list(parent?: IFilePath) {
+    const parser = this.context?.xmlParser || new XMLParser();
     const opts = this.getOptions();
     const rootPrefix = this.getRootPrefix();
     const parentKey = parent ? this.resolveKey(parent) : "";
@@ -363,7 +360,7 @@ export class S3 extends AuthenticatedDriveBase {
       const xml = await simpleRequest(new URL(url), {
         headers,
       }).text();
-      const page = parseListResponse(xml);
+      const page = parseListResponse(parser, xml);
       const items: IRemoteFile[] = [];
       for (const entry of page.contents) {
         const key = normalizeKey(entry.key);

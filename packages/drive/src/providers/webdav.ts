@@ -1,17 +1,13 @@
 import { b64encode, simpleRequest } from "../request";
-import { XMLParser } from "fast-xml-parser";
 import type { IAuthConfig, IFilePath, IRemoteFile } from "../types";
+import { XMLParser } from "../xmlparser";
 import {
   AuthenticatedDriveBase,
+  type DriveContext,
   type IRequestFunction,
   type ITypedRequestOptions,
   withDelay,
 } from "./base";
-
-const parser = new XMLParser({
-  ignoreAttributes: false,
-  removeNSPrefix: true,
-});
 
 export interface IWebDavAuthInfo {
   anonymous?: boolean;
@@ -26,7 +22,7 @@ export interface IWebDavAuthInfo {
 }
 
 export class WebDav extends AuthenticatedDriveBase {
-  constructor(authConfig: IAuthConfig, context: Record<string, unknown>) {
+  constructor(authConfig: IAuthConfig, context: DriveContext) {
     super(authConfig, context);
     let baseUrl = authConfig.serverOptions?.baseUrl as string;
     if (!baseUrl) throw new Error("baseUrl is required");
@@ -93,6 +89,7 @@ export class WebDav extends AuthenticatedDriveBase {
   }
 
   private async propFind(path: string) {
+    const parser = this.context?.xmlParser || new XMLParser();
     const xml = await this.request<string>(path, {
       method: "PROPFIND",
       headers: {

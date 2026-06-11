@@ -20,11 +20,11 @@
     "clean": "del-cli dist tsconfig.tsbuildinfo",
     "build:types": "tsc",
     "build:js": "vite build",
-    "build": "pnpm clean && pnpm build:js && pnpm build:types",
+    "test": "vitest --run",
+    "build": "pnpm test && pnpm clean && pnpm build:js && pnpm build:types",
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@usync/oauth2": "workspace:^",
-    "fast-xml-parser": "^5.8.0"
+    "@usync/oauth2": "workspace:^"
   }
 }

@@ -6,7 +6,7 @@ import {
   type TokenData,
 } from "@usync/oauth2";
 import { DriveProviders } from "./providers";
-import { AuthenticatedDriveBase } from "./providers/base";
+import { AuthenticatedDriveBase, type DriveContext } from "./providers/base";
 import type { IDriveConfig, IServerConfig } from "./types";
 
 export * from "./providers";
@@ -33,12 +33,12 @@ export async function connectDrive(
   driveConfig: IDriveConfig,
   options?: {
     initialData?: IOAuth2TokenState;
+    initialContext?: DriveContext;
     onUpdateToken?: (data: IOAuth2TokenState) => void;
     onAuthorize?: (url: string) => Promise<string>;
   },
 ): Promise<AuthenticatedDriveBase> {
-  let context: Record<string, unknown> = {};
-  let persistTokens: Promise<unknown> | undefined;
+  const context: DriveContext = { ...options?.initialContext };
   if (driveConfig.auth.authProvider !== "password") {
     const provider = driveConfig.auth.authProvider;
     const providerConfig = serverConfig.authProviders[provider];
@@ -74,7 +74,6 @@ export async function connectDrive(
       if (!isAuthError(error)) throw error;
       drive.account = undefined;
     }
-    if (persistTokens) await persistTokens;
   }
   return drive;
 }

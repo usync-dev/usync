@@ -2,6 +2,7 @@ import { ensureAccessToken, OAuth2Authorizer } from "@usync/oauth2";
 import { type IRequestOptions, simpleRequest, SimpleRequestError } from "../request";
 import type { IAuthConfig, IFilePath, IRemoteFile, IUserInfo } from "../types";
 import { delay } from "../util";
+import type { XMLParser } from "../xmlparser";
 
 export type ITypedRequestOptions = IRequestOptions & {
   responseType: "json" | "blob" | "text";
@@ -74,6 +75,11 @@ export abstract class DriveBase {
   ): Promise<IRemoteFile>;
 }
 
+export interface DriveContext {
+  authorizer?: OAuth2Authorizer;
+  xmlParser?: XMLParser;
+}
+
 export abstract class AuthenticatedDriveBase extends DriveBase {
   baseUrl: string | undefined;
   request: IRequestFunction;
@@ -81,7 +87,7 @@ export abstract class AuthenticatedDriveBase extends DriveBase {
 
   constructor(
     protected authConfig: IAuthConfig,
-    protected context: Record<string, unknown>,
+    protected context?: DriveContext,
   ) {
     super();
     this.request = this.initRequest();
@@ -92,11 +98,9 @@ export abstract class AuthenticatedDriveBase extends DriveBase {
       const { responseType, ...rest } = options;
       return (await simpleRequest(new URL(url, this.baseUrl), rest)[responseType]()) as Promise<T>;
     };
-    const { authorizer, handleOAuth2 } = this.context;
-    request = withToken(
-      authorizer as OAuth2Authorizer,
-      handleOAuth2 as ((url: string) => Promise<string>) | undefined,
-    )(request);
+    const authorizer = this.context?.authorizer;
+    if (!authorizer) throw new Error("OAuth2 authorizer is not available");
+    request = withToken(authorizer)(request);
     request = withDelay(request);
     return request;
   }
