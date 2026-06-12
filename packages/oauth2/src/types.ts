@@ -6,7 +6,7 @@ export interface TokenData {
   scope?: string;
 }
 
-export interface IOAuth2Options {
+export interface OAuth2Config {
   clientId: string;
   /** clientSecret may be absent for client-side apps. */
   clientSecret?: string;
@@ -24,7 +24,9 @@ export interface IOAuth2Options {
       accountType?: "common" | "consumers";
     };
   };
+}
 
+export interface OAuth2AuthorizerOptions extends OAuth2Config {
   onSetAccessToken?: (value: TokenData | null) => void;
   onSetRefreshToken?: (value: TokenData | null) => void;
 }

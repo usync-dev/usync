@@ -1,5 +1,5 @@
 import { OAUTH2_NEED_REFRESH, OAUTH2_UNAUTHORIZED, OAuth2Error } from "../common";
-import type { IOAuth2Options, TokenData } from "../types";
+import type { OAuth2AuthorizerOptions, TokenData } from "../types";
 
 export abstract class OAuth2Authorizer {
   abstract buildAuthUrl(): Promise<string>;
@@ -12,7 +12,7 @@ export abstract class OAuth2Authorizer {
   public session: { state: string; codeVerifier: string } | undefined;
 
   constructor(
-    protected options: IOAuth2Options,
+    protected options: OAuth2AuthorizerOptions,
     initialData?: {
       accessToken?: TokenData;
       refreshToken?: TokenData;

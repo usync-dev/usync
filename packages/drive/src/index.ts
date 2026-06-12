@@ -3,16 +3,17 @@ import {
   OAUTH2_UNAUTHORIZED,
   OAuth2Authorizers,
   OAuth2Error,
+  type OAuth2Config,
   type TokenData,
 } from "@usync/oauth2";
 import { DriveProviders } from "./providers";
 import { AuthenticatedDriveBase, type DriveContext } from "./providers/base";
-import type { IDriveConfig, IServerConfig } from "./types";
+import type { IDriveConfig } from "./types";
 
 export * from "./providers";
 export * from "./types";
 
-interface IOAuth2TokenState {
+export interface IOAuth2TokenState {
   accessToken?: TokenData;
   refreshToken?: TokenData;
 }
@@ -28,8 +29,14 @@ function isAuthError(error: unknown) {
   return false;
 }
 
+function validateOAuth2Config(raw: unknown, provider: string): OAuth2Config {
+  const config = raw as OAuth2Config | undefined;
+  if (!config || !config.clientId || !config.redirectUrl)
+    throw new Error(`Invalid OAuth2 config for provider: ${provider}`);
+  return config as OAuth2Config;
+}
+
 export async function connectDrive(
-  serverConfig: IServerConfig,
   driveConfig: IDriveConfig,
   options?: {
     initialData?: IOAuth2TokenState;
@@ -41,14 +48,10 @@ export async function connectDrive(
   const context: DriveContext = { ...options?.initialContext };
   if (driveConfig.auth.authProvider !== "password") {
     const provider = driveConfig.auth.authProvider;
-    const providerConfig = serverConfig.authProviders[provider];
-    if (!providerConfig) {
-      throw new Error(`Missing OAuth2 config for provider: ${provider}`);
-    }
+    const providerConfig = validateOAuth2Config(driveConfig.auth.serverOptions, provider);
     const Authorizer = OAuth2Authorizers[provider];
     const oauthAuthorizer = new Authorizer(
       {
-        redirectUrl: serverConfig.redirectUrl,
         ...providerConfig,
         onSetAccessToken: (value) => {
           options?.onUpdateToken?.({

@@ -1,12 +1,12 @@
 import { OAUTH2_NEED_REFRESH, OAUTH2_UNAUTHORIZED, OAuth2Error } from "./common";
 import { OAuth2Authorizer, OAuth2Authorizers } from "./providers";
-import type { IOAuth2Account, IOAuth2Options } from "./types";
+import type { IOAuth2Account, OAuth2AuthorizerOptions } from "./types";
 
 export * from "./common";
 export * from "./providers";
 export * from "./types";
 
-export function getAuthorizer(options: IOAuth2Options, auth: IOAuth2Account) {
+export function getAuthorizer(options: OAuth2AuthorizerOptions, auth: IOAuth2Account) {
   return new OAuth2Authorizers[auth.provider](options);
 }
 

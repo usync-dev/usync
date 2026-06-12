@@ -1,15 +1,3 @@
-export interface IServerConfig {
-  redirectUrl: string;
-  authProviders: Record<
-    string,
-    {
-      clientId: string;
-      clientSecret: string;
-      scope?: string;
-    }
-  >;
-}
-
 export interface IAuthConfig {
   authProvider: "google" | "dropbox" | "microsoft" | "password";
   user: string;
