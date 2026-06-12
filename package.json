@@ -6,6 +6,10 @@
   "keywords": [],
   "license": "ISC",
   "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usync-dev/usync.git"
+  },
   "type": "module",
   "scripts": {
     "build": "pnpm run test && pnpm run clean && pnpm run build:js && pnpm run build:types",

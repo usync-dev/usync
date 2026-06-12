@@ -2,6 +2,12 @@
   "name": "@usync/oauth2",
   "version": "0.1.3",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usync-dev/usync.git",
+    "directory": "packages/oauth2"
+  },
+  "homepage": "https://github.com/usync-dev/usync/tree/main/packages/oauth2",
   "files": [
     "dist"
   ],

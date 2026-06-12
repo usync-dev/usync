@@ -2,6 +2,12 @@
   "name": "@usync/drive",
   "version": "0.1.5",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usync-dev/usync.git",
+    "directory": "packages/drive"
+  },
+  "homepage": "https://github.com/usync-dev/usync/tree/main/packages/drive",
   "files": [
     "dist"
   ],
