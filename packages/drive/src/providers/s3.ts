@@ -101,8 +101,8 @@ function getLastName(key: string) {
   return last || "";
 }
 
-function parseListResponse(parser: XMLParser, xml: string) {
-  const doc = parser.parse(xml) as {
+async function parseListResponse(parser: XMLParser, xml: string) {
+  const doc = (await parser.parse(xml)) as {
     ListBucketResult?: {
       Contents?:
         | {
@@ -360,7 +360,7 @@ export class S3 extends AuthenticatedDriveBase {
       const xml = await simpleRequest(new URL(url), {
         headers,
       }).text();
-      const page = parseListResponse(parser, xml);
+      const page = await parseListResponse(parser, xml);
       const items: IRemoteFile[] = [];
       for (const entry of page.contents) {
         const key = normalizeKey(entry.key);

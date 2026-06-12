@@ -12,7 +12,7 @@ export class XMLParser {
     this.removeNSPrefix = options.removeNSPrefix ?? true;
   }
 
-  parse(xml: string): any {
+  parse(xml: string): any | Promise<any> {
     const doc = new DOMParser().parseFromString(xml, "text/xml");
     const el = doc.documentElement;
     const tag = this.removeNSPrefix ? el.localName : el.tagName;

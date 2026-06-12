@@ -97,7 +97,7 @@ export class WebDav extends AuthenticatedDriveBase {
       },
       responseType: "text",
     });
-    const doc = parser.parse(xml);
+    const doc = await parser.parse(xml);
     let response = doc["multistatus"]["response"] as any[];
     if (!Array.isArray(response)) response = response ? [response] : [];
     return response.map((item: any): IRemoteFile => {
