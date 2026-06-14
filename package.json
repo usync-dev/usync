@@ -17,8 +17,7 @@
     "test": "pnpm run -r test",
     "build:types": "pnpm run -r build:types",
     "build:js": "pnpm run -r build:js",
-    "format": "oxfmt",
-    "release:snapshot": "tsx scripts/release.ts"
+    "format": "oxfmt"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
