@@ -1,6 +1,7 @@
 {
   "name": "@usync/oauth2",
   "version": "0.1.4",
+  "description": "OAuth2 support for provider-based authorization flows and token management.",
   "license": "ISC",
   "repository": {
     "type": "git",

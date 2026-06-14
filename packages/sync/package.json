@@ -1,6 +1,7 @@
 {
   "name": "@usync/sync",
   "version": "0.1.1",
+  "description": "Pure sync decision logic for normalized two-sided snapshots.",
   "license": "ISC",
   "repository": {
     "type": "git",

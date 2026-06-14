@@ -1,8 +1,7 @@
 # @usync/oauth2
 
-[![NPM](https://img.shields.io/npm/v/@usync/oauth2.svg)](https://npm.im/@usync/oauth2)
+[![NPM](https://img.shields.io/npm/v/@usync/oauth2.svg)](https://npmx.dev/package/@usync/oauth2)
 ![License](https://img.shields.io/npm/l/@usync/oauth2.svg)
-[![jsDocs.io](https://img.shields.io/badge/jsDocs.io-reference-blue)](https://www.jsdocs.io/package/@usync/oauth2)
 
 OAuth2 support for provider-based authorization flows and token management.
 

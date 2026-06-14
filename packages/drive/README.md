@@ -1,8 +1,7 @@
 # @usync/drive
 
-[![NPM](https://img.shields.io/npm/v/@usync/drive.svg)](https://npm.im/@usync/drive)
+[![NPM](https://img.shields.io/npm/v/@usync/drive.svg)](https://npmx.dev/package/@usync/drive)
 ![License](https://img.shields.io/npm/l/@usync/drive.svg)
-[![jsDocs.io](https://img.shields.io/badge/jsDocs.io-reference-blue)](https://www.jsdocs.io/package/@usync/drive)
 
 Provider adapters and shared types for working with remote file storage.
 

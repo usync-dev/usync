@@ -1,8 +1,7 @@
 # @usync/sync
 
-[![NPM](https://img.shields.io/npm/v/@usync/sync.svg)](https://npm.im/@usync/sync)
+[![NPM](https://img.shields.io/npm/v/@usync/sync.svg)](https://npmx.dev/package/@usync/sync)
 ![License](https://img.shields.io/npm/l/@usync/sync.svg)
-[![jsDocs.io](https://img.shields.io/badge/jsDocs.io-reference-blue)](https://www.jsdocs.io/package/@usync/sync)
 
 Pure sync decision logic for normalized two-sided snapshots.
 
