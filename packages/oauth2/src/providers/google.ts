@@ -1,5 +1,5 @@
 import { OAUTH2_AUTH_ERROR, OAuth2Error } from "../common.ts";
-import { getCodeChallenge, getCodeVerifier, getState, getNonce } from "../util.ts";
+import { getCodeChallenge, getCodeVerifier, getNonce, getState } from "../util.ts";
 import { OAuth2Authorizer } from "./base.ts";
 
 const GOOGLE_URL_AUTHORIZE = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -79,12 +79,12 @@ export class GoogleAuthorizer extends OAuth2Authorizer {
       id_token?: string;
     };
     if (!res.ok) throw { status: res.status, data };
-    if (!data.refresh_token)
-      throw new OAuth2Error(OAUTH2_AUTH_ERROR, "Failed to get refresh_token");
-    this._updateRefreshToken({
-      token: data.refresh_token,
-      scope: data.scope,
-    });
+    if (data.refresh_token) {
+      this._updateRefreshToken({
+        token: data.refresh_token,
+        scope: data.scope,
+      });
+    }
     this._updateAccessToken({
       token: data.access_token,
       expiresAt: Date.now() + data.expires_in * 1000,

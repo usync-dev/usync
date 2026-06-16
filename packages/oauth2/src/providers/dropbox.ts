@@ -1,7 +1,7 @@
 import { OAUTH2_AUTH_ERROR, OAuth2Error } from "../common.ts";
+import type { IdTokenClaims } from "../types.ts";
 import { getCodeChallenge, getCodeVerifier, getState } from "../util.ts";
 import { OAuth2Authorizer } from "./base.ts";
-import type { IdTokenClaims } from "../types.ts";
 
 const DROPBOX_URL_AUTHORIZE = "https://www.dropbox.com/oauth2/authorize";
 const DROPBOX_URL_TOKEN = "https://api.dropbox.com/oauth2/token";
@@ -68,12 +68,12 @@ export class DropboxAuthorizer extends OAuth2Authorizer {
       uid: string;
     };
     if (!res.ok) throw { status: res.status, data };
-    if (!data.refresh_token)
-      throw new OAuth2Error(OAUTH2_AUTH_ERROR, "Failed to get refresh_token");
-    this._updateRefreshToken({
-      token: data.refresh_token,
-      scope: data.scope,
-    });
+    if (data.refresh_token) {
+      this._updateRefreshToken({
+        token: data.refresh_token,
+        scope: data.scope,
+      });
+    }
     this._updateAccessToken({
       token: data.access_token,
       expiresAt: Date.now() + data.expires_in * 1000,
