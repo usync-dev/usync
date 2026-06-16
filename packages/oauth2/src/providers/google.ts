@@ -33,13 +33,13 @@ export class GoogleAuthorizer extends OAuth2Authorizer {
     );
     const url = new URL(GOOGLE_URL_AUTHORIZE);
     Object.entries({
-      access_type: "offline",
+      access_type: this.options.provider?.google?.accessType,
       client_id: this.options.clientId,
       code_challenge: codeChallenge,
       code_challenge_method: codeChallengeMethod,
       include_granted_scopes: "true",
       nonce: this.session.nonce,
-      prompt: "consent",
+      prompt: this.options.provider?.google?.prompt,
       redirect_uri: this.options.redirectUrl,
       response_type: "code",
       scope: this.options.scope,

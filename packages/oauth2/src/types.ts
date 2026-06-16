@@ -29,6 +29,10 @@ export interface OAuth2Config {
   scope?: string;
 
   provider?: {
+    google?: {
+      accessType?: string;
+      prompt?: string;
+    };
     microsoft?: {
       /**
        * Must match the account type of the application registered in https://portal.azure.com/.
