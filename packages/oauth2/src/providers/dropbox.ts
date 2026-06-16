@@ -1,6 +1,7 @@
 import { OAUTH2_AUTH_ERROR, OAuth2Error } from "../common.ts";
 import { getCodeChallenge, getCodeVerifier, getState } from "../util.ts";
 import { OAuth2Authorizer } from "./base.ts";
+import type { IdTokenClaims } from "../types.ts";
 
 const DROPBOX_URL_AUTHORIZE = "https://www.dropbox.com/oauth2/authorize";
 const DROPBOX_URL_TOKEN = "https://api.dropbox.com/oauth2/token";
@@ -106,5 +107,9 @@ export class DropboxAuthorizer extends OAuth2Authorizer {
       expiresAt: Date.now() + data.expires_in * 1000,
     });
     return data.access_token;
+  }
+
+  getClaims(): IdTokenClaims {
+    throw new OAuth2Error(OAUTH2_AUTH_ERROR, "OIDC not supported by Dropbox");
   }
 }

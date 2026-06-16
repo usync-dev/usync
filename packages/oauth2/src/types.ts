@@ -6,6 +6,21 @@ export interface TokenData {
   scope?: string;
 }
 
+export interface IdTokenClaims {
+  iss?: string;
+  sub?: string;
+  aud?: string;
+  exp?: number;
+  iat?: number;
+  nonce?: string;
+  email?: string;
+  name?: string;
+  picture?: string;
+  given_name?: string;
+  family_name?: string;
+  email_verified?: boolean;
+}
+
 export interface OAuth2Config {
   clientId: string;
   /** clientSecret may be absent for client-side apps. */

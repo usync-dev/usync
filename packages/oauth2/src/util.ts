@@ -23,6 +23,20 @@ export function getCodeVerifier() {
   return nanoid(64);
 }
 
+export function getNonce() {
+  return nanoid(32);
+}
+
+export function decodeJwtPayload(token: string): Record<string, unknown> {
+  const parts = token.split(".");
+  if (parts.length !== 3) throw new Error("Invalid JWT");
+  const binary = atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const decoded = new TextDecoder("utf-8").decode(bytes);
+  return JSON.parse(decoded);
+}
+
 export async function getCodeChallenge(codeVerifier: string) {
   const method = "S256";
   const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(codeVerifier));

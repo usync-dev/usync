@@ -1,5 +1,5 @@
 import { OAUTH2_AUTH_ERROR, OAuth2Error } from "../common.ts";
-import { getCodeChallenge, getCodeVerifier, getState } from "../util.ts";
+import { getCodeChallenge, getCodeVerifier, getState, getNonce } from "../util.ts";
 import { OAuth2Authorizer } from "./base.ts";
 
 const GOOGLE_URL_AUTHORIZE = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -18,10 +18,15 @@ export class GoogleAuthorizer extends OAuth2Authorizer {
     imap: "https://mail.google.com/",
   };
 
+  protected get isOidc(): boolean {
+    return this.options.scope?.split(/\s+/).includes("openid") ?? false;
+  }
+
   async buildAuthUrl() {
     this.session = {
       state: getState(),
       codeVerifier: getCodeVerifier(),
+      ...(this.isOidc ? { nonce: getNonce() } : {}),
     };
     const { codeChallenge, codeChallengeMethod } = await getCodeChallenge(
       this.session.codeVerifier,
@@ -33,6 +38,7 @@ export class GoogleAuthorizer extends OAuth2Authorizer {
       code_challenge: codeChallenge,
       code_challenge_method: codeChallengeMethod,
       include_granted_scopes: "true",
+      nonce: this.session.nonce,
       prompt: "consent",
       redirect_uri: this.options.redirectUrl,
       response_type: "code",
@@ -70,6 +76,7 @@ export class GoogleAuthorizer extends OAuth2Authorizer {
       token_type: "Bearer";
       scope: string;
       refresh_token: string;
+      id_token?: string;
     };
     if (!res.ok) throw { status: res.status, data };
     if (!data.refresh_token)
@@ -82,6 +89,11 @@ export class GoogleAuthorizer extends OAuth2Authorizer {
       token: data.access_token,
       expiresAt: Date.now() + data.expires_in * 1000,
     });
+    if (this.isOidc) {
+      if (!data.id_token)
+        throw new OAuth2Error(OAUTH2_AUTH_ERROR, "OIDC enabled but no id_token returned");
+      this._idToken = data.id_token;
+    }
     return data.access_token;
   }
 

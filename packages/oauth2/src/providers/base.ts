@@ -1,5 +1,6 @@
-import { OAUTH2_NEED_REFRESH, OAUTH2_UNAUTHORIZED, OAuth2Error } from "../common";
-import type { OAuth2AuthorizerOptions, TokenData } from "../types";
+import { OAUTH2_AUTH_ERROR, OAUTH2_NEED_REFRESH, OAUTH2_UNAUTHORIZED, OAuth2Error } from "../common";
+import { decodeJwtPayload } from "../util";
+import type { IdTokenClaims, OAuth2AuthorizerOptions, TokenData } from "../types";
 
 export abstract class OAuth2Authorizer {
   abstract buildAuthUrl(): Promise<string>;
@@ -8,15 +9,16 @@ export abstract class OAuth2Authorizer {
 
   protected _accessToken: TokenData | null = null;
   protected _refreshToken: TokenData | null = null;
+  protected _idToken: string | null = null;
 
-  public session: { state: string; codeVerifier: string } | undefined;
+  public session: { state: string; codeVerifier: string; nonce?: string } | undefined;
 
   constructor(
     protected options: OAuth2AuthorizerOptions,
     initialData?: {
       accessToken?: TokenData;
       refreshToken?: TokenData;
-      session?: { state: string; codeVerifier: string };
+      session?: { state: string; codeVerifier: string; nonce?: string };
     },
   ) {
     if (initialData) {
@@ -59,5 +61,14 @@ export abstract class OAuth2Authorizer {
 
   setRefreshToken(value?: TokenData | null) {
     this._refreshToken = value ?? null;
+  }
+
+  getClaims(): IdTokenClaims {
+    if (!this._idToken)
+      throw new OAuth2Error(OAUTH2_AUTH_ERROR, "OIDC not enabled or claims not available");
+    const claims = decodeJwtPayload(this._idToken) as IdTokenClaims;
+    if (this.session?.nonce && claims.nonce !== this.session.nonce)
+      throw new OAuth2Error(OAUTH2_AUTH_ERROR, "nonce mismatch");
+    return claims;
   }
 }

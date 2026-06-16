@@ -1,5 +1,5 @@
 import { OAUTH2_AUTH_ERROR, OAuth2Error } from "../common.ts";
-import { getCodeChallenge, getCodeVerifier, getState } from "../util.ts";
+import { getCodeChallenge, getCodeVerifier, getState, getNonce } from "../util.ts";
 import { OAuth2Authorizer } from "./base.ts";
 
 /**
@@ -12,6 +12,10 @@ export class MicrosoftAuthorizer extends OAuth2Authorizer {
     onedrive: "openid profile Files.ReadWrite.AppFolder offline_access",
   };
 
+  protected get isOidc(): boolean {
+    return this.options.scope?.split(/\s+/).includes("openid") ?? false;
+  }
+
   private oauth2Url(path: string) {
     const tenant = this.options.provider?.microsoft?.accountType ?? "common";
     const url = `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/${path}`;
@@ -22,6 +26,7 @@ export class MicrosoftAuthorizer extends OAuth2Authorizer {
     this.session = {
       state: getState(),
       codeVerifier: getCodeVerifier(),
+      ...(this.isOidc ? { nonce: getNonce() } : {}),
     };
     const { codeChallenge, codeChallengeMethod } = await getCodeChallenge(
       this.session.codeVerifier,
@@ -31,6 +36,7 @@ export class MicrosoftAuthorizer extends OAuth2Authorizer {
       client_id: this.options.clientId,
       code_challenge: codeChallenge,
       code_challenge_method: codeChallengeMethod,
+      nonce: this.session.nonce,
       redirect_uri: this.options.redirectUrl,
       response_mode: "query",
       response_type: "code",
@@ -69,6 +75,7 @@ export class MicrosoftAuthorizer extends OAuth2Authorizer {
       token_type: "Bearer";
       scope: string;
       refresh_token: string;
+      id_token?: string;
     };
     if (!res.ok) throw { status: res.status, data };
     if (!data.refresh_token)
@@ -81,6 +88,11 @@ export class MicrosoftAuthorizer extends OAuth2Authorizer {
       token: data.access_token,
       expiresAt: Date.now() + data.expires_in * 1000,
     });
+    if (this.isOidc) {
+      if (!data.id_token)
+        throw new OAuth2Error(OAUTH2_AUTH_ERROR, "OIDC enabled but no id_token returned");
+      this._idToken = data.id_token;
+    }
     return data.access_token;
   }
 
