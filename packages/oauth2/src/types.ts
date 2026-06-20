@@ -30,7 +30,17 @@ export interface OAuth2Config {
 
   provider?: {
     google?: {
-      accessType?: string;
+      /**
+       * Whether your application can refresh access tokens when the user is not present at the browser.
+       * See https://developers.google.com/identity/protocols/oauth2/web-server#offline
+       *
+       * Default as `online`.
+       */
+      accessType?: "online" | "offline";
+      /**
+       * A space-delimited, case-sensitive list of prompts to present the user.
+       * See https://developers.google.com/identity/openid-connect/openid-connect#prompt
+       */
       prompt?: string;
     };
     microsoft?: {
