@@ -1,14 +1,9 @@
 import { OAUTH2_NEED_REFRESH, OAUTH2_UNAUTHORIZED, OAuth2Error } from "./common";
-import { OAuth2Authorizer, OAuth2Authorizers } from "./providers";
-import type { IOAuth2Account, OAuth2AuthorizerOptions } from "./types";
+import { OAuth2Authorizer } from "./providers";
 
 export * from "./common";
 export * from "./providers";
 export * from "./types";
-
-export function getAuthorizer(options: OAuth2AuthorizerOptions, auth: IOAuth2Account) {
-  return new OAuth2Authorizers[auth.provider](options);
-}
 
 export async function ensureAccessToken(
   authorizer: OAuth2Authorizer,
