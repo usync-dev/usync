@@ -1,5 +1,6 @@
 import { connectDrive, type IOAuth2TokenState } from "@usync/drive";
 import { MicrosoftAuthorizer, type TokenData } from "@usync/oauth2";
+import assert from "node:assert";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as readline from "node:readline";
@@ -7,6 +8,9 @@ import * as readline from "node:readline";
 const CLIENT_ID = process.env.ONEDRIVE_CLIENT_ID!;
 const CLIENT_SECRET = process.env.ONEDRIVE_CLIENT_SECRET!;
 const REDIRECT_URL = "http://localhost:5678/callback";
+
+const INITIAL_CONTENT = "hello from onedrive demo";
+const OVERRIDDEN_CONTENT = "overridden content";
 
 if (!CLIENT_ID) {
   console.error("ONEDRIVE_CLIENT_ID is required");
@@ -86,22 +90,33 @@ async function main() {
   console.log("1. Uploading...");
   const file = await drive.put(
     { parent: {}, name: `${prefix}.txt` },
-    new Blob(["hello from onedrive demo"]),
+    new Blob([INITIAL_CONTENT]),
   );
   console.log(`   id:   ${file.id}`);
   console.log(`   name: ${file.name}`);
   console.log(`   size: ${file.size}`);
 
-  console.log("2. Downloading by path...");
+  console.log("2. Overwriting...");
+  const overwritten = await drive.put(
+    { parent: {}, name: `${prefix}.txt` },
+    new Blob([OVERRIDDEN_CONTENT]),
+  );
+  console.log(`   id:   ${overwritten.id}`);
+  console.log(`   name: ${overwritten.name}`);
+  console.log(`   size: ${overwritten.size}`);
+
+  console.log("3. Downloading by path...");
   const blobByPath = await drive.get({ path: `/${prefix}.txt` });
+  assert.strictEqual(await blobByPath.text(), OVERRIDDEN_CONTENT);
   console.log(`   content: ${await blobByPath.text()}`);
 
-  console.log("3. Downloading by id...");
-  const blob = await drive.get({ id: file.id });
+  console.log("4. Downloading by id...");
+  const blob = await drive.get({ id: overwritten.id });
+  assert.strictEqual(await blob.text(), OVERRIDDEN_CONTENT);
   console.log(`   content: ${await blob.text()}`);
 
-  console.log("4. Deleting...");
-  await drive.remove({ id: file.id });
+  console.log("5. Deleting...");
+  await drive.remove({ id: overwritten.id });
   console.log("   done");
 
   console.log("\n✓ OneDrive demo passed");
