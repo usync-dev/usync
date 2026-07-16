@@ -1,4 +1,4 @@
-import type { IFilePath, IRemoteFile, IUserInfo } from "../types";
+import type { ChildRef, EntryRef, IRemoteFile, IUserInfo } from "../types";
 import { AuthenticatedDriveBase } from "./base";
 
 export interface IOneDriveItem {
@@ -60,31 +60,28 @@ export class OneDrive extends AuthenticatedDriveBase {
     };
   }
 
-  private getOneDrivePath(
-    param: (IFilePath & { parent?: IFilePath }) | undefined,
-    allowEmpty: boolean,
-  ) {
+  private getOneDrivePath(param: EntryRef | ChildRef, allowEmpty: boolean) {
     const odPath = new OneDrivePath();
-    if (param?.id) {
-      odPath.append(`me/drive/items/${param.id}`, false);
-    } else {
-      if (param?.parent?.id) {
+    if (param.parent) {
+      if (param.parent.id) {
         odPath.append(`me/drive/items/${param.parent.id}`, false);
       } else {
         odPath.append(this.root, false);
         if (param?.parent?.path) odPath.append(param.parent.path, true);
       }
-      let path = param?.path || "";
-      if (path[0] === "/") path = path.slice(1);
-      if (path) odPath.append(path, true);
-      if (!path && !allowEmpty) {
+      let name = param?.name || "";
+      if (name[0] === "/") name = name.slice(1);
+      if (name) odPath.append(name, true);
+      if (!name && !allowEmpty) {
         throw new Error("Invalid path");
       }
+    } else {
+      odPath.append(`me/drive/items/${param.id}`, false);
     }
     return odPath;
   }
 
-  async mkdir(param: { parent?: IFilePath; name: string }) {
+  async mkdir(param: ChildRef) {
     const odPath = this.getOneDrivePath(param.parent, true);
     odPath.append("/children", false);
     const item = await this.request<IOneDriveItem>(odPath.toString(), {
@@ -99,7 +96,7 @@ export class OneDrive extends AuthenticatedDriveBase {
     return this.normalizeEntry(item);
   }
 
-  async find(param: IFilePath) {
+  async find(param: EntryRef) {
     const odPath = this.getOneDrivePath(param, false);
     const data = await this.request<IOneDriveItem>(odPath.toString(), {
       responseType: "json",
@@ -107,8 +104,8 @@ export class OneDrive extends AuthenticatedDriveBase {
     return this.normalizeEntry(data);
   }
 
-  async *list(parent?: IFilePath) {
-    const odPath = this.getOneDrivePath(parent, true);
+  async *list(parent?: EntryRef) {
+    const odPath = this.getOneDrivePath(parent ?? {}, true);
     odPath.append("/children", false);
     let url = odPath.toString();
     while (url) {
@@ -121,13 +118,13 @@ export class OneDrive extends AuthenticatedDriveBase {
     }
   }
 
-  async get(param: IFilePath) {
+  async get(param: EntryRef) {
     const odPath = this.getOneDrivePath(param, false);
     odPath.append("/content", false);
     return this.request<Blob>(odPath.toString(), { responseType: "blob" });
   }
 
-  async remove(param: IFilePath) {
+  async remove(param: EntryRef) {
     const odPath = this.getOneDrivePath(param, false);
     // Returns 204
     await this.request(odPath.toString(), {
@@ -136,13 +133,7 @@ export class OneDrive extends AuthenticatedDriveBase {
     });
   }
 
-  async put(
-    param: IFilePath & {
-      parent?: IFilePath;
-      name?: string;
-    },
-    data: Blob,
-  ) {
+  async put(param: EntryRef | ChildRef, data: Blob) {
     const odPath = this.getOneDrivePath(param, false);
     odPath.append("/content", false);
     const item = await this.request<IOneDriveItem>(odPath.toString(), {

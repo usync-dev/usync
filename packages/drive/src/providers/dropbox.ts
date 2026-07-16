@@ -1,4 +1,4 @@
-import type { IFilePath, IRemoteFile } from "../types";
+import type { ChildRef, EntryRef, IRemoteFile } from "../types";
 import { AuthenticatedDriveBase } from "./base";
 
 interface IDropboxEntry {
@@ -32,7 +32,7 @@ export class Dropbox extends AuthenticatedDriveBase {
     };
   }
 
-  private getDropboxPath(param: IFilePath | undefined, allowEmpty: boolean) {
+  private getDropboxPath(param: EntryRef | undefined, allowEmpty: boolean) {
     if (param?.id) {
       // Dropbox ID has a pattern of `id:${string}`
       return param.id;
@@ -68,7 +68,7 @@ export class Dropbox extends AuthenticatedDriveBase {
     return this.account;
   }
 
-  async mkdir(param: { parent?: IFilePath; name: string }) {
+  async mkdir(param: ChildRef) {
     const path = [this.getDropboxPath(param.parent, true), param.name].filter(Boolean).join("/");
     const data = await this.request<{
       metadata: Omit<IDropboxEntry, ".tag">;
@@ -85,7 +85,7 @@ export class Dropbox extends AuthenticatedDriveBase {
     });
   }
 
-  async find(param: IFilePath) {
+  async find(param: EntryRef) {
     const path = this.getDropboxPath(param, false);
     const data = await this.request<IDropboxEntry>(
       "https://api.dropboxapi.com/2/files/get_metadata",
@@ -100,7 +100,7 @@ export class Dropbox extends AuthenticatedDriveBase {
     return this.normalizeEntry(data);
   }
 
-  async *list(parent?: IFilePath) {
+  async *list(parent?: EntryRef) {
     const path = parent ? this.getDropboxPath(parent, true) : "";
     let data = await this.request<{
       cursor: string;
@@ -126,7 +126,7 @@ export class Dropbox extends AuthenticatedDriveBase {
     }
   }
 
-  async get(param: IFilePath) {
+  async get(param: EntryRef) {
     const path = this.getDropboxPath(param, false);
     return this.request<Blob>("https://content.dropboxapi.com/2/files/download", {
       method: "POST",
@@ -139,7 +139,7 @@ export class Dropbox extends AuthenticatedDriveBase {
     });
   }
 
-  async remove(param: IFilePath) {
+  async remove(param: EntryRef) {
     const path = this.getDropboxPath(param, false);
     await this.request("https://api.dropboxapi.com/2/files/delete", {
       method: "POST",
@@ -150,17 +150,10 @@ export class Dropbox extends AuthenticatedDriveBase {
     });
   }
 
-  async put(
-    param: IFilePath & {
-      parent?: IFilePath;
-      name?: string;
-    },
-    data: Blob,
-  ) {
-    const path =
-      param.name && !param.id
-        ? [this.getDropboxPath(param.parent, true), param.name].filter(Boolean).join("/")
-        : this.getDropboxPath(param, true);
+  async put(param: EntryRef | ChildRef, data: Blob) {
+    const path = param.parent
+      ? [this.getDropboxPath(param.parent, true).replace(/\/$/, ""), param.name].join("/")
+      : this.getDropboxPath(param, true);
     if (!path) throw new Error("Invalid path");
     const metadata = await this.request<Omit<IDropboxEntry, ".tag">>(
       "https://content.dropboxapi.com/2/files/upload",

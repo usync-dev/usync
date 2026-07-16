@@ -24,7 +24,19 @@ export interface IUserInfo {
   avatar?: string;
 }
 
-export interface IFilePath {
+/**
+ * A path object that resolves to an existing file or directory.
+ */
+export interface EntryRef {
+  parent?: undefined;
   id?: string;
   path?: string;
+}
+
+/**
+ * A path object that resolves to a file or directory from its parent.
+ */
+export interface ChildRef {
+  parent: EntryRef;
+  name: string;
 }

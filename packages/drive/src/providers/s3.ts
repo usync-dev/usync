@@ -5,7 +5,7 @@
 // - https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
 // - https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
 import { simpleRequest } from "../request";
-import type { IFilePath, IRemoteFile, IUserInfo } from "../types";
+import type { ChildRef, EntryRef, IRemoteFile, IUserInfo } from "../types";
 import { XMLParser } from "../xmlparser";
 import {
   type IRequestFunction,
@@ -243,12 +243,12 @@ export class S3 extends AuthenticatedDriveBase {
     return prefix ? `${prefix}/` : "";
   }
 
-  private resolveKey(param: IFilePath | undefined) {
+  private resolveKey(param: EntryRef | undefined) {
     const key = param?.id || param?.path || "";
     return normalizeKey(key);
   }
 
-  private resolveFullKey(param: IFilePath | undefined) {
+  private resolveFullKey(param: EntryRef | undefined) {
     return `${this.getRootPrefix()}${this.resolveKey(param)}`.replace(/\/+$/, "");
   }
 
@@ -310,11 +310,11 @@ export class S3 extends AuthenticatedDriveBase {
     return this.account;
   }
 
-  async mkdir(_param: { parent?: IFilePath; name: string }): Promise<IRemoteFile> {
+  async mkdir(_param: ChildRef): Promise<IRemoteFile> {
     throw new Error("Not supported");
   }
 
-  async find(param: IFilePath) {
+  async find(param: EntryRef) {
     const key = this.resolveKey(param);
     if (!key) throw new Error("Invalid path");
     let item: IRemoteFile | undefined;
@@ -334,7 +334,7 @@ export class S3 extends AuthenticatedDriveBase {
     return item;
   }
 
-  async *list(parent?: IFilePath) {
+  async *list(parent?: EntryRef) {
     const parser = this.context?.xmlParser || new XMLParser();
     const opts = this.getOptions();
     const rootPrefix = this.getRootPrefix();
@@ -381,7 +381,7 @@ export class S3 extends AuthenticatedDriveBase {
     } while (continuationToken);
   }
 
-  async get(param: IFilePath) {
+  async get(param: EntryRef) {
     const key = this.resolveFullKey(param);
     const opts = this.getOptions();
     const { url, headers } = await signS3Request({
@@ -398,7 +398,7 @@ export class S3 extends AuthenticatedDriveBase {
     }).blob();
   }
 
-  async remove(param: IFilePath) {
+  async remove(param: EntryRef) {
     const key = this.resolveFullKey(param);
     const opts = this.getOptions();
     const { url, headers } = await signS3Request({
@@ -416,15 +416,9 @@ export class S3 extends AuthenticatedDriveBase {
     }).blob();
   }
 
-  async put(
-    param: IFilePath & {
-      parent?: IFilePath;
-      name?: string;
-    },
-    data: Blob,
-  ) {
+  async put(param: EntryRef | ChildRef, data: Blob) {
     const parentKey = this.resolveFullKey(param.parent);
-    const key = param.name
+    const key = param.parent
       ? `${parentKey ? `${parentKey}/` : this.getRootPrefix()}${param.name}`
       : this.resolveFullKey(param);
     if (!key) throw new Error("Invalid file name");

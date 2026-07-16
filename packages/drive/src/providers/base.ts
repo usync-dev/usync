@@ -1,6 +1,6 @@
 import { ensureAccessToken, OAuth2Authorizer } from "@usync/oauth2";
 import { type IRequestOptions, simpleRequest, SimpleRequestError } from "../request";
-import type { IAuthConfig, IFilePath, IRemoteFile, IUserInfo } from "../types";
+import type { ChildRef, EntryRef, IAuthConfig, IRemoteFile, IUserInfo } from "../types";
 import { delay } from "../util";
 import type { XMLParser } from "../xmlparser";
 
@@ -61,18 +61,12 @@ export function withToken(
 }
 
 export abstract class DriveBase {
-  abstract mkdir(param: { parent?: IFilePath; name: string }): Promise<IRemoteFile>;
-  abstract find(param: IFilePath): Promise<IRemoteFile>;
-  abstract list(parent?: IFilePath): AsyncGenerator<IRemoteFile[]>;
-  abstract get(param: IFilePath): Promise<Blob>;
-  abstract remove(param: IFilePath): Promise<void>;
-  abstract put(
-    param: IFilePath & {
-      parent?: IFilePath;
-      name?: string;
-    },
-    data: Blob,
-  ): Promise<IRemoteFile>;
+  abstract mkdir(param: ChildRef): Promise<IRemoteFile>;
+  abstract find(param: EntryRef): Promise<IRemoteFile>;
+  abstract list(parent: EntryRef): AsyncGenerator<IRemoteFile[]>;
+  abstract get(param: EntryRef): Promise<Blob>;
+  abstract remove(param: EntryRef): Promise<void>;
+  abstract put(param: EntryRef | ChildRef, data: Blob): Promise<IRemoteFile>;
 }
 
 export interface DriveContext {

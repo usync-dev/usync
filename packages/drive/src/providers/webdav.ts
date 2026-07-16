@@ -1,5 +1,5 @@
 import { b64encode, simpleRequest } from "../request";
-import type { IAuthConfig, IFilePath, IRemoteFile } from "../types";
+import type { ChildRef, EntryRef, IAuthConfig, IRemoteFile } from "../types";
 import { XMLParser } from "../xmlparser";
 import {
   AuthenticatedDriveBase,
@@ -61,7 +61,7 @@ export class WebDav extends AuthenticatedDriveBase {
     return this.account;
   }
 
-  private getWebDavPath(param: IFilePath | undefined, allowEmpty: boolean) {
+  private getWebDavPath(param: EntryRef | undefined, allowEmpty: boolean) {
     let path = param?.path || param?.id || "";
     if (path[0] === "/") path = path.slice(1);
     if (!path && !allowEmpty) throw new Error("Invalid path");
@@ -72,7 +72,7 @@ export class WebDav extends AuthenticatedDriveBase {
     return new URL(url, this.baseUrl).href;
   }
 
-  async mkdir(param: { parent?: IFilePath; name: string }) {
+  async mkdir(param: ChildRef) {
     const path = [this.getWebDavPath(param.parent, true), param.name].filter(Boolean).join("/");
     await this.request(path, {
       method: "MKCOL",
@@ -113,7 +113,7 @@ export class WebDav extends AuthenticatedDriveBase {
     });
   }
 
-  async find(param: IFilePath) {
+  async find(param: EntryRef) {
     const path = this.getWebDavPath(param, false);
     const fullUrl = this.getFullUrl(path);
     const items = await this.propFind(path);
@@ -122,7 +122,7 @@ export class WebDav extends AuthenticatedDriveBase {
     return item;
   }
 
-  async *list(parent?: IFilePath) {
+  async *list(parent?: EntryRef) {
     const path = this.getWebDavPath(parent, true);
     const fullUrl = this.getFullUrl(path);
     let items = await this.propFind(path);
@@ -130,12 +130,12 @@ export class WebDav extends AuthenticatedDriveBase {
     yield items;
   }
 
-  async get(param: IFilePath) {
+  async get(param: EntryRef) {
     const path = this.getWebDavPath(param, false);
     return this.request<Blob>(path, { responseType: "blob" });
   }
 
-  async remove(param: IFilePath) {
+  async remove(param: EntryRef) {
     const path = this.getWebDavPath(param, false);
     await this.request(path, {
       method: "DELETE",
@@ -143,16 +143,10 @@ export class WebDav extends AuthenticatedDriveBase {
     });
   }
 
-  async put(
-    param: IFilePath & {
-      parent?: IFilePath;
-      name?: string;
-    },
-    data: Blob,
-  ) {
-    const path =
-      this.getWebDavPath(param, true) ||
-      [this.getWebDavPath(param.parent, true), param.name || ""].filter(Boolean).join("/");
+  async put(param: EntryRef | ChildRef, data: Blob) {
+    const path = param.parent
+      ? [this.getWebDavPath(param.parent, true), param.name].filter(Boolean).join("/")
+      : this.getWebDavPath(param, true);
     if (!path) throw new Error("Invalid path");
     await this.request(path, {
       method: "PUT",
