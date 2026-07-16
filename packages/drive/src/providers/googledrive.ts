@@ -1,13 +1,15 @@
 import type { ChildRef, EntryRef, IRemoteFile } from "../types";
 import { AuthenticatedDriveBase } from "./base";
 
+const FILE_FIELDS = "id,name,size,kind,mimeType,modifiedTime";
+const LIST_FIELDS = `files(${FILE_FIELDS}),nextPageToken`;
+
 interface IGoogleDriveEntry {
   kind: string;
   mimeType: string;
   size: string;
   id: string;
   name: string;
-  createdTime: string;
   modifiedTime: string;
 }
 
@@ -44,10 +46,33 @@ export class GoogleDrive extends AuthenticatedDriveBase {
 
   private async stat(id: string) {
     const metadata = await this.request<IGoogleDriveEntry>(
-      `files/${id}?fields=id,name,size,kind,mimeType,modifiedTime`,
+      `files/${id}?fields=${FILE_FIELDS}`,
       { responseType: "json" },
     );
     return this.normalizeEntry(metadata);
+  }
+
+  private async listFiles(
+    parentId?: string,
+    name?: string,
+    fields?: string,
+    pageToken?: string,
+  ) {
+    const qParts: string[] = [];
+    if (parentId) qParts.push(`'${parentId}' in parents`);
+    if (name) qParts.push(`name = '${name.replace(/'/g, "\\'")}'`);
+
+    const search = new URLSearchParams({
+      spaces: this.rootId,
+      fields: fields || "files(id),nextPageToken",
+    });
+    if (qParts.length) search.set("q", qParts.join(" and "));
+    if (pageToken) search.set("pageToken", pageToken);
+
+    return this.request<{ files: IGoogleDriveEntry[]; nextPageToken?: string }>(
+      `files?${search}`,
+      { responseType: "json" },
+    );
   }
 
   private async resolveId(param: EntryRef) {
@@ -59,22 +84,18 @@ export class GoogleDrive extends AuthenticatedDriveBase {
 
   async find(param: EntryRef) {
     if (param.id) return this.stat(param.id);
-    let item: IRemoteFile | undefined;
     if (!param.path) throw new Error("Invalid path");
     const parts = param.path.split("/").filter(Boolean);
+    let parentId: string | undefined;
+    let item: IGoogleDriveEntry | undefined;
     for (const part of parts) {
-      const parent = item;
-      item = undefined;
-      for await (const children of this.list(parent && { id: parent.id })) {
-        const child = children.find((item) => item.name === part);
-        if (child) {
-          item = child;
-          break;
-        }
-      }
+      const data = await this.listFiles(parentId, part, `files(${FILE_FIELDS})`);
+      item = data.files[0];
+      if (!item) throw new Error("Item not found");
+      parentId = item.id;
     }
     if (!item) throw new Error("Item not found");
-    return item;
+    return this.normalizeEntry(item);
   }
 
   async mkdir(param: ChildRef) {
@@ -95,18 +116,7 @@ export class GoogleDrive extends AuthenticatedDriveBase {
     const parentId = parent && (await this.resolveId(parent));
     let pageToken = "";
     while (true) {
-      const search = new URLSearchParams({
-        spaces: this.rootId,
-        fields: "files(id,name,size,kind,mimeType,createdTime,modifiedTime),nextPageToken",
-        pageToken,
-        ...(parentId && {
-          q: `'${parentId}' in parents`,
-        }),
-      });
-      const data = await this.request<{
-        nextPageToken?: string;
-        files: IGoogleDriveEntry[];
-      }>(`files?${search}`, { responseType: "json" });
+      const data = await this.listFiles(parentId, undefined, LIST_FIELDS, pageToken);
       yield data.files.map((item) => this.normalizeEntry(item));
       if (!data.nextPageToken) break;
       pageToken = data.nextPageToken;
@@ -130,28 +140,33 @@ export class GoogleDrive extends AuthenticatedDriveBase {
   }
 
   async put(param: EntryRef | ChildRef, data: Blob) {
-    const pathInfo: { name: string; parents?: string[] } = {
-      name: "",
-    };
     let id = "";
+    let metadata: Record<string, unknown> = {};
     if (param.parent) {
-      pathInfo.parents = [await this.resolveId(param.parent)];
-      pathInfo.name = param.name;
+      const parentId = await this.resolveId(param.parent);
+      const existing = await this.listFiles(parentId, param.name, "files(id)");
+      if (existing.files.length) {
+        id = existing.files[0].id;
+      } else {
+        metadata = { parents: [parentId], name: param.name };
+      }
     } else {
       id = await this.resolveId(param);
     }
-    if (!id && !pathInfo.name) throw new Error("Invalid file name");
+    if (!id && !metadata.name) throw new Error("Invalid file name");
+
     const form = new FormData();
-    form.append("metadata", new Blob([JSON.stringify(pathInfo)], { type: "application/json" }));
+    form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
     form.append("file", data);
+
     const url = id
-      ? `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=multipart&fields=id,name,size,kind,mimeType,modifiedTime`
-      : "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,size,kind,mimeType,modifiedTime";
-    const metadata = await this.request<IGoogleDriveEntry>(url, {
+      ? `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=multipart&fields=${FILE_FIELDS}`
+      : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=${FILE_FIELDS}`;
+    const result = await this.request<IGoogleDriveEntry>(url, {
       body: form,
       method: id ? "PATCH" : "POST",
       responseType: "json",
     });
-    return this.normalizeEntry(metadata);
+    return this.normalizeEntry(result);
   }
 }
