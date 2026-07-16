@@ -1,0 +1,21 @@
+{
+  "name": "@usync/demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dropbox": "tsx --env-file-if-exists=.env src/dropbox.ts",
+    "googledrive": "tsx --env-file-if-exists=.env src/googledrive.ts",
+    "onedrive": "tsx --env-file-if-exists=.env src/onedrive.ts",
+    "webdav": "tsx --env-file-if-exists=.env src/webdav.ts",
+    "s3": "tsx --env-file-if-exists=.env src/s3.ts"
+  },
+  "dependencies": {
+    "@usync/drive": "workspace:^",
+    "@usync/oauth2": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.2",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
