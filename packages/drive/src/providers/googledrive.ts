@@ -43,9 +43,10 @@ export class GoogleDrive extends AuthenticatedDriveBase {
   }
 
   private async stat(id: string) {
-    const metadata = await this.request<IGoogleDriveEntry>(`files/${id}`, {
-      responseType: "json",
-    });
+    const metadata = await this.request<IGoogleDriveEntry>(
+      `files/${id}?fields=id,name,size,kind,mimeType,modifiedTime`,
+      { responseType: "json" },
+    );
     return this.normalizeEntry(metadata);
   }
 
@@ -144,8 +145,8 @@ export class GoogleDrive extends AuthenticatedDriveBase {
     form.append("metadata", new Blob([JSON.stringify(pathInfo)], { type: "application/json" }));
     form.append("file", data);
     const url = id
-      ? `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=multipart`
-      : "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart";
+      ? `https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=multipart&fields=id,name,size,kind,mimeType,modifiedTime`
+      : "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,size,kind,mimeType,modifiedTime";
     const metadata = await this.request<IGoogleDriveEntry>(url, {
       body: form,
       method: id ? "PATCH" : "POST",

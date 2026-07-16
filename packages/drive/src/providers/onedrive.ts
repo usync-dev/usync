@@ -67,16 +67,19 @@ export class OneDrive extends AuthenticatedDriveBase {
         odPath.append(`me/drive/items/${param.parent.id}`, false);
       } else {
         odPath.append(this.root, false);
-        if (param?.parent?.path) odPath.append(param.parent.path, true);
+        if (param.parent.path) odPath.append(param.parent.path, true);
       }
-      let name = param?.name || "";
-      if (name[0] === "/") name = name.slice(1);
+      const name = param.name;
       if (name) odPath.append(name, true);
       if (!name && !allowEmpty) {
-        throw new Error("Invalid path");
+        throw new Error("Invalid path: name is required");
       }
-    } else {
+    } else if (param.id) {
       odPath.append(`me/drive/items/${param.id}`, false);
+    } else {
+      odPath.append(this.root, false);
+      let path = param.path?.replace(/^\//, "");
+      if (path) odPath.append(path, true);
     }
     return odPath;
   }

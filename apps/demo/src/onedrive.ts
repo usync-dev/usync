@@ -92,11 +92,15 @@ async function main() {
   console.log(`   name: ${file.name}`);
   console.log(`   size: ${file.size}`);
 
-  console.log("2. Downloading...");
+  console.log("2. Downloading by path...");
+  const blobByPath = await drive.get({ path: `/${prefix}.txt` });
+  console.log(`   content: ${await blobByPath.text()}`);
+
+  console.log("3. Downloading by id...");
   const blob = await drive.get({ id: file.id });
   console.log(`   content: ${await blob.text()}`);
 
-  console.log("3. Deleting...");
+  console.log("4. Deleting...");
   await drive.remove({ id: file.id });
   console.log("   done");
 
