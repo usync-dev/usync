@@ -63,7 +63,7 @@ export function withToken(
 export abstract class DriveBase {
   abstract mkdir(param: ChildRef): Promise<IRemoteFile>;
   abstract find(param: EntryRef): Promise<IRemoteFile>;
-  abstract list(parent: EntryRef): AsyncGenerator<IRemoteFile[]>;
+  abstract list(parent?: EntryRef): AsyncGenerator<IRemoteFile[]>;
   abstract get(param: EntryRef): Promise<Blob>;
   abstract remove(param: EntryRef): Promise<void>;
   abstract put(param: EntryRef | ChildRef, data: Blob): Promise<IRemoteFile>;
