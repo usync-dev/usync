@@ -51,6 +51,7 @@ export class GoogleDrive extends AuthenticatedDriveBase {
 
   private async resolveId(param: IFilePath) {
     if (param.id) return param.id;
+    if (!param.path) return this.rootId;
     const item = await this.find(param);
     return item.id;
   }
