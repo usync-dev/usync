@@ -9,6 +9,14 @@ import {
   withDelay,
 } from "./base";
 
+function decodeName(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export interface IWebDavAuthInfo {
   anonymous?: boolean;
   user?: string;
@@ -103,12 +111,16 @@ export class WebDav extends AuthenticatedDriveBase {
     return response.map((item: any): IRemoteFile => {
       const prop = item["propstat"]["prop"];
       const isDir = prop["resourcetype"]?.["collection"];
+      const href = item["href"] || "";
+      const lastSegment =
+        new URL(href, this.baseUrl).pathname.split("/").filter(Boolean).pop() || "";
+      const modified = prop["getlastmodified"];
       return {
-        id: this.getFullUrl(item["href"]),
-        name: prop["displayname"],
+        id: this.getFullUrl(href),
+        name: prop["displayname"] || decodeName(lastSegment),
         kind: isDir ? "folder" : "file",
         size: isDir ? 0 : prop["getcontentlength"],
-        modifiedTime: new Date(prop["getlastmodified"]).toISOString(),
+        modifiedTime: modified ? new Date(modified).toISOString() : "",
       };
     });
   }
