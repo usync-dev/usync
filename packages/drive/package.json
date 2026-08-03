@@ -1,6 +1,6 @@
 {
   "name": "@usync/drive",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Provider adapters and shared types for working with remote file storage.",
   "license": "ISC",
   "repository": {
