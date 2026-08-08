@@ -1,8 +1,7 @@
 import { ensureAccessToken, OAuth2Authorizer } from "@usync/oauth2";
 import { type IRequestOptions, simpleRequest, SimpleRequestError } from "../request";
-import type { ChildRef, EntryRef, IAuthConfig, IRemoteFile, IUserInfo } from "../types";
+import type { ChildRef, EntryRef, IAuthConfig, IRemoteFile, IUserInfo, IXMLParser } from "../types";
 import { delay } from "../util";
-import type { XMLParser } from "../xmlparser";
 
 export type ITypedRequestOptions = IRequestOptions & {
   responseType: "json" | "blob" | "text";
@@ -71,7 +70,7 @@ export abstract class DriveBase {
 
 export interface DriveContext {
   authorizer?: OAuth2Authorizer;
-  xmlParser?: XMLParser;
+  xmlParser?: IXMLParser;
 }
 
 export abstract class AuthenticatedDriveBase extends DriveBase {

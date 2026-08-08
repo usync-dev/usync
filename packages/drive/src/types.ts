@@ -1,3 +1,7 @@
+export interface IXMLParser {
+  parse(xml: string): any | Promise<any>;
+}
+
 export interface IAuthConfig {
   authProvider: "google" | "dropbox" | "microsoft" | "password";
   user: string;

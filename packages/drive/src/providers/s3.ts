@@ -5,7 +5,7 @@
 // - https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
 // - https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
 import { simpleRequest } from "../request";
-import type { ChildRef, EntryRef, IRemoteFile, IUserInfo } from "../types";
+import type { ChildRef, EntryRef, IRemoteFile, IUserInfo, IXMLParser } from "../types";
 import { XMLParser } from "../xmlparser";
 import {
   type IRequestFunction,
@@ -101,7 +101,7 @@ function getLastName(key: string) {
   return last || "";
 }
 
-async function parseListResponse(parser: XMLParser, xml: string) {
+async function parseListResponse(parser: IXMLParser, xml: string) {
   const doc = (await parser.parse(xml)) as {
     ListBucketResult?: {
       Contents?:

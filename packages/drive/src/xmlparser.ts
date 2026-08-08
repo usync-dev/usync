@@ -1,9 +1,11 @@
+import type { IXMLParser } from "./types";
+
 interface XMLParserOptions {
   ignoreAttributes?: boolean;
   removeNSPrefix?: boolean;
 }
 
-export class XMLParser {
+export class XMLParser implements IXMLParser {
   private ignoreAttributes: boolean;
   private removeNSPrefix: boolean;
 
