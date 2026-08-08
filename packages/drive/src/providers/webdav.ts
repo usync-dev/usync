@@ -80,6 +80,10 @@ export class WebDav extends AuthenticatedDriveBase {
     return new URL(url, this.baseUrl).href;
   }
 
+  private normalizeUrl(url: string) {
+    return url.replace(/\/+$/, "");
+  }
+
   async mkdir(param: ChildRef) {
     const path = [this.getWebDavPath(param.parent, true), param.name].filter(Boolean).join("/");
     await this.request(path, {
@@ -129,7 +133,7 @@ export class WebDav extends AuthenticatedDriveBase {
     const path = this.getWebDavPath(param, false);
     const fullUrl = this.getFullUrl(path);
     const items = await this.propFind(path);
-    const item = items.find((item) => item.id === fullUrl);
+    const item = items.find((item) => this.normalizeUrl(item.id) === this.normalizeUrl(fullUrl));
     if (!item) throw new Error("Item not found");
     return item;
   }
@@ -138,7 +142,7 @@ export class WebDav extends AuthenticatedDriveBase {
     const path = this.getWebDavPath(parent, true);
     const fullUrl = this.getFullUrl(path);
     let items = await this.propFind(path);
-    items = items.filter((item) => item.id !== fullUrl);
+    items = items.filter((item) => this.normalizeUrl(item.id) !== this.normalizeUrl(fullUrl));
     yield items;
   }
 
