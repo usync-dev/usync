@@ -11,6 +11,7 @@ import { AuthenticatedDriveBase, type DriveContext } from "./providers/base";
 import type { IDriveConfig } from "./types";
 
 export * from "./providers";
+export * from "./request";
 export * from "./types";
 
 export interface IOAuth2TokenState {

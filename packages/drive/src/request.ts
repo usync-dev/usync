@@ -7,7 +7,12 @@ export class SimpleRequestError extends Error {
   response?: Response;
   declare cause: unknown;
 
-  constructor(message: string, request: { url: string; method: string }, response?: Response, cause?: unknown) {
+  constructor(
+    message: string,
+    request: { url: string; method: string },
+    response?: Response,
+    cause?: unknown,
+  ) {
     super(message);
     this.request = request;
     this.response = response;
@@ -44,12 +49,4 @@ export function simpleRequest(url: URL, options?: IRequestOptions) {
     json: <T = unknown>() => execute((r) => r.json() as Promise<T>),
     text: () => execute((r) => r.text()),
   };
-}
-
-export function b64encode(data: Uint8Array): string {
-  let binary = "";
-  for (const byte of data) {
-    binary += String.fromCharCode(byte);
-  }
-  return btoa(binary);
 }

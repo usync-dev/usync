@@ -1,5 +1,6 @@
-import { b64encode, simpleRequest } from "../request";
+import { simpleRequest } from "../request";
 import type { ChildRef, EntryRef, IAuthConfig, IRemoteFile } from "../types";
+import { b64encode } from "../util";
 import { XMLParser } from "../xmlparser";
 import {
   AuthenticatedDriveBase,
