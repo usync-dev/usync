@@ -290,11 +290,15 @@ export class S3 extends AuthenticatedDriveBase {
       for (const [name, value] of Object.entries(headers)) {
         requestHeaders.set(name, value);
       }
-      const response = simpleRequest(new URL(signedUrl), {
-        ...rest,
-        headers: requestHeaders,
-        body,
-      });
+      const response = simpleRequest(
+        new URL(signedUrl),
+        {
+          ...rest,
+          headers: requestHeaders,
+          body,
+        },
+        this.context?.fetch,
+      );
       return (await response[responseType]()) as Promise<T>;
     };
     return withDelay(request);
@@ -359,7 +363,7 @@ export class S3 extends AuthenticatedDriveBase {
       });
       const xml = await simpleRequest(new URL(url), {
         headers,
-      }).text();
+      }, this.context?.fetch).text();
       const page = await parseListResponse(parser, xml);
       const items: IRemoteFile[] = [];
       for (const entry of page.contents) {
@@ -395,7 +399,7 @@ export class S3 extends AuthenticatedDriveBase {
     });
     return simpleRequest(new URL(url), {
       headers,
-    }).blob();
+    }, this.context?.fetch).blob();
   }
 
   async remove(param: EntryRef) {
@@ -413,7 +417,7 @@ export class S3 extends AuthenticatedDriveBase {
     await simpleRequest(new URL(url), {
       method: "DELETE",
       headers,
-    }).blob();
+    }, this.context?.fetch).blob();
   }
 
   async put(param: EntryRef | ChildRef, data: Blob) {
@@ -438,7 +442,7 @@ export class S3 extends AuthenticatedDriveBase {
       method: "PUT",
       headers,
       body: data,
-    }).blob();
+    }, this.context?.fetch).blob();
     return this.normalizeFile(
       key,
       data.size,

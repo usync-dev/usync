@@ -71,6 +71,7 @@ export abstract class DriveBase {
 export interface DriveContext {
   authorizer?: OAuth2Authorizer;
   xmlParser?: IXMLParser;
+  fetch?: typeof fetch;
 }
 
 export abstract class AuthenticatedDriveBase extends DriveBase {
@@ -89,7 +90,11 @@ export abstract class AuthenticatedDriveBase extends DriveBase {
   initRequest() {
     let request: IRequestFunction = async <T>(url: string, options: ITypedRequestOptions) => {
       const { responseType, ...rest } = options;
-      return (await simpleRequest(new URL(url, this.baseUrl), rest)[responseType]()) as Promise<T>;
+      return (await simpleRequest(
+        new URL(url, this.baseUrl),
+        rest,
+        this.context?.fetch,
+      )[responseType]()) as Promise<T>;
     };
     const authorizer = this.context?.authorizer;
     if (!authorizer) throw new Error("OAuth2 authorizer is not available");

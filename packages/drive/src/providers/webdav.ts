@@ -54,7 +54,7 @@ export class WebDav extends AuthenticatedDriveBase {
         credentials: "omit",
         ...rest,
         headers,
-      })[responseType]() as Promise<T>;
+      }, this.context?.fetch)[responseType]() as Promise<T>;
     };
     request = withDelay(request);
     return request;

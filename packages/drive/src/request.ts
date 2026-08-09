@@ -20,7 +20,11 @@ export class SimpleRequestError extends Error {
   }
 }
 
-export function simpleRequest(url: URL, options?: IRequestOptions) {
+export function simpleRequest(
+  url: URL,
+  options?: IRequestOptions,
+  fetchImpl: typeof fetch = fetch,
+) {
   const { json, ...fetchOptions } = options || {};
   const method = fetchOptions.method || "GET";
   const info = { url: url.toString(), method };
@@ -34,7 +38,7 @@ export function simpleRequest(url: URL, options?: IRequestOptions) {
   async function execute<R>(reader: (response: Response) => Promise<R>): Promise<R> {
     let response: Response | undefined;
     try {
-      response = await fetch(url, { ...fetchOptions, headers });
+      response = await fetchImpl(url, { ...fetchOptions, headers });
       const result = await reader(response);
       if (!response.ok) throw new SimpleRequestError(response.statusText, info, response, result);
       return result;
