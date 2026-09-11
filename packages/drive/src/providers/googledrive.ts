@@ -45,19 +45,13 @@ export class GoogleDrive extends AuthenticatedDriveBase {
   }
 
   private async stat(id: string) {
-    const metadata = await this.request<IGoogleDriveEntry>(
-      `files/${id}?fields=${FILE_FIELDS}`,
-      { responseType: "json" },
-    );
+    const metadata = await this.request<IGoogleDriveEntry>(`files/${id}?fields=${FILE_FIELDS}`, {
+      responseType: "json",
+    });
     return this.normalizeEntry(metadata);
   }
 
-  private async listFiles(
-    parentId?: string,
-    name?: string,
-    fields?: string,
-    pageToken?: string,
-  ) {
+  private async listFiles(parentId?: string, name?: string, fields?: string, pageToken?: string) {
     const qParts: string[] = [];
     if (parentId) qParts.push(`'${parentId}' in parents`);
     if (name) qParts.push(`name = '${name.replace(/'/g, "\\'")}'`);
@@ -69,10 +63,9 @@ export class GoogleDrive extends AuthenticatedDriveBase {
     if (qParts.length) search.set("q", qParts.join(" and "));
     if (pageToken) search.set("pageToken", pageToken);
 
-    return this.request<{ files: IGoogleDriveEntry[]; nextPageToken?: string }>(
-      `files?${search}`,
-      { responseType: "json" },
-    );
+    return this.request<{ files: IGoogleDriveEntry[]; nextPageToken?: string }>(`files?${search}`, {
+      responseType: "json",
+    });
   }
 
   private async resolveId(param: EntryRef) {

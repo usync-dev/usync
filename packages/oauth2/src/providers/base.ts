@@ -1,4 +1,9 @@
-import { OAUTH2_AUTH_ERROR, OAUTH2_NEED_REFRESH, OAUTH2_UNAUTHORIZED, OAuth2Error } from "../common";
+import {
+  OAUTH2_AUTH_ERROR,
+  OAUTH2_NEED_REFRESH,
+  OAUTH2_UNAUTHORIZED,
+  OAuth2Error,
+} from "../common";
 import { decodeJwtPayload } from "../util";
 import type { IdTokenClaims, OAuth2AuthorizerOptions, TokenData } from "../types";
 

@@ -1,7 +1,6 @@
-import { simpleRequest } from "../request";
 import type { ChildRef, EntryRef, IAuthConfig, IRemoteFile } from "../types";
-import { b64encode } from "../util";
-import { XMLParser } from "../xmlparser";
+import { XMLParser, b64encode, simpleRequest } from "../util";
+
 import {
   AuthenticatedDriveBase,
   type DriveContext,
@@ -49,12 +48,16 @@ export class WebDav extends AuthenticatedDriveBase {
         headers.set("authorization", `Basic ${auth}`);
       }
       if (url.startsWith("/")) url = `.${url}`;
-      return simpleRequest(new URL(url, this.baseUrl), {
-        // Bypass login CSRF protection in NextCloud by not sending cookies
-        credentials: "omit",
-        ...rest,
-        headers,
-      }, this.context?.fetch)[responseType]() as Promise<T>;
+      return simpleRequest(
+        new URL(url, this.baseUrl),
+        {
+          // Bypass login CSRF protection in NextCloud by not sending cookies
+          credentials: "omit",
+          ...rest,
+          headers,
+        },
+        this.context?.fetch,
+      )[responseType]() as Promise<T>;
     };
     request = withDelay(request);
     return request;

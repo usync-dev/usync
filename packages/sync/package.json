@@ -2,13 +2,13 @@
   "name": "@usync/sync",
   "version": "0.1.1",
   "description": "Pure sync decision logic for normalized two-sided snapshots.",
+  "homepage": "https://github.com/usync-dev/usync/tree/main/packages/sync",
   "license": "ISC",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/usync-dev/usync.git",
     "directory": "packages/sync"
   },
-  "homepage": "https://github.com/usync-dev/usync/tree/main/packages/sync",
   "files": [
     "dist"
   ],

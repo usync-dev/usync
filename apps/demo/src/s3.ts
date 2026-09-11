@@ -1,4 +1,4 @@
-import { DriveProviders } from "@usync/drive";
+import { S3 } from "@usync/drive";
 import assert from "node:assert";
 
 const ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID!;
@@ -16,7 +16,7 @@ if (!ACCESS_KEY_ID || !SECRET_ACCESS_KEY || !BUCKET || !ENDPOINT) {
 }
 
 async function main() {
-  const drive = new DriveProviders.s3(
+  const drive = new S3(
     {
       authProvider: "password",
       user: ACCESS_KEY_ID,
@@ -29,10 +29,7 @@ async function main() {
   const prefix = `__demo_${Date.now()}`;
 
   console.log("1. Uploading...");
-  const file = await drive.put(
-    { parent: {}, name: `${prefix}.txt` },
-    new Blob([INITIAL_CONTENT]),
-  );
+  const file = await drive.put({ parent: {}, name: `${prefix}.txt` }, new Blob([INITIAL_CONTENT]));
   console.log(`   id:   ${file.id}`);
   console.log(`   name: ${file.name}`);
   console.log(`   size: ${file.size}`);

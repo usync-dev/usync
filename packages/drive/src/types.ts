@@ -10,7 +10,7 @@ export interface IAuthConfig {
 }
 
 export interface IDriveConfig {
-  driveProvider: "googledrive" | "dropbox" | "onedrive" | "s3" | "webdav";
+  driveProvider: "googledrive" | "dropbox" | "onedrive" | "s3" | "webdav" | (string & {});
   auth: IAuthConfig;
 }
 

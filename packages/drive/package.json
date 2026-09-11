@@ -2,13 +2,13 @@
   "name": "@usync/drive",
   "version": "0.2.8",
   "description": "Provider adapters and shared types for working with remote file storage.",
+  "homepage": "https://github.com/usync-dev/usync/tree/main/packages/drive",
   "license": "ISC",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/usync-dev/usync.git",
     "directory": "packages/drive"
   },
-  "homepage": "https://github.com/usync-dev/usync/tree/main/packages/drive",
   "files": [
     "dist"
   ],
@@ -18,6 +18,10 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./git": {
+      "import": "./dist/providers/git/index.js",
+      "types": "./dist/providers/git/index.d.ts"
     }
   },
   "publishConfig": {
@@ -33,6 +37,7 @@
     "prepublishOnly": "pnpm build"
   },
   "dependencies": {
-    "@usync/oauth2": "workspace:^"
+    "@usync/oauth2": "workspace:^",
+    "isomorphic-git": "^1.42.0"
   }
 }

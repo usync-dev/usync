@@ -33,16 +33,18 @@ function hasSameEffectiveState(
   right: SyncItemState | undefined,
 ): boolean {
   if (isDeleted(left) && isDeleted(right)) return true;
-  if (left !== undefined && right !== undefined && left.deleted !== true && right.deleted !== true) {
+  if (
+    left !== undefined &&
+    right !== undefined &&
+    left.deleted !== true &&
+    right.deleted !== true
+  ) {
     return left.lastModified === right.lastModified;
   }
   return false;
 }
 
-function compareSnapshotMetadata(
-  left: SyncSnapshotMetadata,
-  right: SyncSnapshotMetadata,
-): number {
+function compareSnapshotMetadata(left: SyncSnapshotMetadata, right: SyncSnapshotMetadata): number {
   if (left.lastModified < right.lastModified) return -1;
   if (left.lastModified > right.lastModified) return 1;
   return 0;

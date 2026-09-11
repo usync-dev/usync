@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { XMLParser } from "./xmlparser";
+import { XMLParser } from ".";
 
 const parser = new XMLParser({
   ignoreAttributes: false,

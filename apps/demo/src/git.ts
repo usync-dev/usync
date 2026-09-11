@@ -1,25 +1,25 @@
-import { WebDav } from "@usync/drive";
+import { Git } from "@usync/drive/git";
 import assert from "node:assert";
 
-const BASE_URL = process.env.WEBDAV_BASE_URL;
-const USER = process.env.WEBDAV_USER!;
-const PASSWORD = process.env.WEBDAV_PASSWORD;
+const GIT_URL = process.env.GIT_URL;
+const GIT_USER = process.env.GIT_USER!;
+const GIT_PASSWORD = process.env.GIT_PASSWORD;
 
-const INITIAL_CONTENT = "hello from webdav demo";
+const INITIAL_CONTENT = "hello from git demo";
 const OVERRIDDEN_CONTENT = "overridden content";
 
-if (!BASE_URL || !USER || !PASSWORD) {
-  console.error("WEBDAV_BASE_URL, WEBDAV_USER, and WEBDAV_PASSWORD are required");
+if (!GIT_URL || !GIT_USER || !GIT_PASSWORD) {
+  console.error("GIT_URL, GIT_USER, and GIT_PASSWORD are required");
   process.exit(1);
 }
 
 async function main() {
-  const drive = new WebDav(
+  const drive = new Git(
     {
       authProvider: "password",
-      user: USER,
-      password: PASSWORD,
-      serverOptions: { baseUrl: BASE_URL },
+      user: GIT_USER,
+      password: GIT_PASSWORD,
+      serverOptions: { url: GIT_URL, path: "" },
     },
     {},
   );
@@ -53,12 +53,15 @@ async function main() {
 
   console.log("5. Deleting...");
   await drive.remove({ id: overwritten.id });
+
+  console.log("6. Flushing...");
+  await drive.flush();
   console.log("   done");
 
-  console.log("\n✓ WebDAV demo passed");
+  console.log("\n✓ Git demo passed");
 }
 
 main().catch((err) => {
-  console.error("✗ WebDAV demo failed:", err);
+  console.error("✗ Git demo failed:", err);
   process.exit(1);
 });

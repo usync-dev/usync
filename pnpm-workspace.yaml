@@ -3,3 +3,5 @@ packages:
   - "apps/*"
 allowBuilds:
   esbuild: false
+minimumReleaseAgeExclude:
+  - isomorphic-git@1.42.0

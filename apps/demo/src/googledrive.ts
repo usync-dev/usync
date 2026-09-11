@@ -34,8 +34,12 @@ async function main() {
       clientSecret: CLIENT_SECRET,
       redirectUrl: REDIRECT_URL,
       scope: "https://www.googleapis.com/auth/drive.appdata",
-      onSetAccessToken: (value) => { accessTokenData = value; },
-      onSetRefreshToken: (value) => { refreshTokenData = value; },
+      onSetAccessToken: (value) => {
+        accessTokenData = value;
+      },
+      onSetRefreshToken: (value) => {
+        refreshTokenData = value;
+      },
     });
 
     const url = await authorizer.buildAuthUrl();
@@ -79,10 +83,7 @@ async function main() {
   const prefix = `__demo_${Date.now()}`;
 
   console.log("1. Uploading...");
-  const file = await drive.put(
-    { parent: {}, name: `${prefix}.txt` },
-    new Blob([INITIAL_CONTENT]),
-  );
+  const file = await drive.put({ parent: {}, name: `${prefix}.txt` }, new Blob([INITIAL_CONTENT]));
   console.log(`   id:   ${file.id}`);
   console.log(`   name: ${file.name}`);
   console.log(`   size: ${file.size}`);

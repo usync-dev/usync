@@ -12,12 +12,12 @@
   },
   "type": "module",
   "scripts": {
-    "build": "pnpm run test && pnpm run clean && pnpm run build:js && pnpm run build:types",
+    "build": "pnpm run check && pnpm run clean && pnpm run build:js && pnpm run build:types",
+    "check": "pnpm -r test && oxlint --fix && oxfmt",
     "clean": "pnpm run -r clean",
     "test": "pnpm run -r test",
     "build:types": "pnpm run -r build:types",
-    "build:js": "pnpm run -r build:js",
-    "format": "oxfmt"
+    "build:js": "pnpm run -r build:js"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.2",

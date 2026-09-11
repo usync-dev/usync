@@ -2,13 +2,13 @@
   "name": "@usync/oauth2",
   "version": "0.1.7",
   "description": "OAuth2 support for provider-based authorization flows and token management.",
+  "homepage": "https://github.com/usync-dev/usync/tree/main/packages/oauth2",
   "license": "ISC",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/usync-dev/usync.git",
     "directory": "packages/oauth2"
   },
-  "homepage": "https://github.com/usync-dev/usync/tree/main/packages/oauth2",
   "files": [
     "dist"
   ],

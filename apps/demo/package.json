@@ -7,7 +7,8 @@
     "googledrive": "tsx --env-file-if-exists=.env src/googledrive.ts",
     "onedrive": "tsx --env-file-if-exists=.env src/onedrive.ts",
     "webdav": "tsx --env-file-if-exists=.env src/webdav.ts",
-    "s3": "tsx --env-file-if-exists=.env src/s3.ts"
+    "s3": "tsx --env-file-if-exists=.env src/s3.ts",
+    "git": "tsx --env-file-if-exists=.env src/git.ts"
   },
   "dependencies": {
     "@usync/drive": "workspace:^",

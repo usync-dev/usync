@@ -4,9 +4,9 @@
 // References:
 // - https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
 // - https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectsV2.html
-import { simpleRequest } from "../request";
+
 import type { ChildRef, EntryRef, IRemoteFile, IUserInfo, IXMLParser } from "../types";
-import { XMLParser } from "../xmlparser";
+import { XMLParser, simpleRequest } from "../util";
 import {
   type IRequestFunction,
   type ITypedRequestOptions,
@@ -361,9 +361,13 @@ export class S3 extends AuthenticatedDriveBase {
         secretAccessKey: opts.secretAccessKey,
         region: opts.region,
       });
-      const xml = await simpleRequest(new URL(url), {
-        headers,
-      }, this.context?.fetch).text();
+      const xml = await simpleRequest(
+        new URL(url),
+        {
+          headers,
+        },
+        this.context?.fetch,
+      ).text();
       const page = await parseListResponse(parser, xml);
       const items: IRemoteFile[] = [];
       for (const entry of page.contents) {
@@ -397,9 +401,13 @@ export class S3 extends AuthenticatedDriveBase {
       secretAccessKey: opts.secretAccessKey,
       region: opts.region,
     });
-    return simpleRequest(new URL(url), {
-      headers,
-    }, this.context?.fetch).blob();
+    return simpleRequest(
+      new URL(url),
+      {
+        headers,
+      },
+      this.context?.fetch,
+    ).blob();
   }
 
   async remove(param: EntryRef) {
@@ -414,10 +422,14 @@ export class S3 extends AuthenticatedDriveBase {
       secretAccessKey: opts.secretAccessKey,
       region: opts.region,
     });
-    await simpleRequest(new URL(url), {
-      method: "DELETE",
-      headers,
-    }, this.context?.fetch).blob();
+    await simpleRequest(
+      new URL(url),
+      {
+        method: "DELETE",
+        headers,
+      },
+      this.context?.fetch,
+    ).blob();
   }
 
   async put(param: EntryRef | ChildRef, data: Blob) {
@@ -438,11 +450,15 @@ export class S3 extends AuthenticatedDriveBase {
       region: opts.region,
       body: data,
     });
-    await simpleRequest(new URL(url), {
-      method: "PUT",
-      headers,
-      body: data,
-    }, this.context?.fetch).blob();
+    await simpleRequest(
+      new URL(url),
+      {
+        method: "PUT",
+        headers,
+        body: data,
+      },
+      this.context?.fetch,
+    ).blob();
     return this.normalizeFile(
       key,
       data.size,

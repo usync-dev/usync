@@ -7,9 +7,9 @@ const externals = Object.keys(pkg.dependencies || {});
 export default defineConfig({
   build: {
     lib: {
-      entry: "src/index.ts",
+      entry: { index: "src/index.ts", "providers/git/index": "src/providers/git/index.ts" },
       formats: ["es"],
-      fileName: "index",
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
       external: (id) => {

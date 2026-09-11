@@ -1,7 +1,7 @@
 import { ensureAccessToken, OAuth2Authorizer } from "@usync/oauth2";
-import { type IRequestOptions, simpleRequest, SimpleRequestError } from "../request";
 import type { ChildRef, EntryRef, IAuthConfig, IRemoteFile, IUserInfo, IXMLParser } from "../types";
-import { delay } from "../util";
+import { type IRequestOptions, delay, simpleRequest, SimpleRequestError } from "../util";
+import type { IGitFs } from "./git/memoryfs";
 
 export type ITypedRequestOptions = IRequestOptions & {
   responseType: "json" | "blob" | "text";
@@ -72,6 +72,11 @@ export interface DriveContext {
   authorizer?: OAuth2Authorizer;
   xmlParser?: IXMLParser;
   fetch?: typeof fetch;
+  /**
+   * Filesystem for providers that keep local state (the `Git` drive provider).
+   * Omit it to use an in-memory one.
+   */
+  fs?: IGitFs;
 }
 
 export abstract class AuthenticatedDriveBase extends DriveBase {
@@ -90,11 +95,9 @@ export abstract class AuthenticatedDriveBase extends DriveBase {
   initRequest() {
     let request: IRequestFunction = async <T>(url: string, options: ITypedRequestOptions) => {
       const { responseType, ...rest } = options;
-      return (await simpleRequest(
-        new URL(url, this.baseUrl),
-        rest,
-        this.context?.fetch,
-      )[responseType]()) as Promise<T>;
+      return (await simpleRequest(new URL(url, this.baseUrl), rest, this.context?.fetch)[
+        responseType
+      ]()) as Promise<T>;
     };
     const authorizer = this.context?.authorizer;
     if (!authorizer) throw new Error("OAuth2 authorizer is not available");
