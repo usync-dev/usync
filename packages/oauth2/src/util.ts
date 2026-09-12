@@ -1,5 +1,11 @@
 import { nanoid } from "nanoid";
 
+declare global {
+  interface Uint8Array {
+    toBase64(options?: { alphabet?: "base64" | "base64url", omitPadding?: boolean }): string;
+  }
+}
+
 function b64urlEncode(data: Uint8Array): string {
   let binary = "";
   for (const byte of data) {
@@ -40,7 +46,9 @@ export function decodeJwtPayload(token: string): Record<string, unknown> {
 export async function getCodeChallenge(codeVerifier: string) {
   const method = "S256";
   const buffer = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(codeVerifier));
-  const challenge = b64urlEncode(new Uint8Array(buffer));
+  const arr = new Uint8Array(buffer);
+  const challenge = arr.toBase64?.({ alphabet: "base64url", omitPadding: true })
+    || b64urlEncode(arr);
   return {
     codeChallenge: challenge,
     codeChallengeMethod: method,

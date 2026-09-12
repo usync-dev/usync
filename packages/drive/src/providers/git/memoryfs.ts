@@ -1,3 +1,5 @@
+import {b64encode, hexEncode} from "../../util";
+
 interface FsEntry {
   type: "file" | "dir" | "symlink";
   data: Uint8Array | null;
@@ -116,12 +118,6 @@ function toBytes(data: Uint8Array | ArrayBuffer | ArrayBufferView | string): Uin
   return new Uint8Array(data);
 }
 
-function b64encodeBytes(data: Uint8Array): string {
-  let binary = "";
-  for (const byte of data) binary += String.fromCharCode(byte);
-  return btoa(binary);
-}
-
 /** Default in-memory `IGitFs` implementation. */
 export class MemoryFs implements IGitFs {
   #entries = new Map<string, FsEntry>();
@@ -217,12 +213,8 @@ export class MemoryFs implements IGitFs {
     const encoding = typeof options === "string" ? options : options?.encoding;
     if (!encoding) return new Uint8Array(data);
     if (encoding === "utf8" || encoding === "utf-8") return new TextDecoder().decode(data);
-    if (encoding === "base64") return b64encodeBytes(data);
-    if (encoding === "hex") {
-      let hex = "";
-      for (const byte of data) hex += byte.toString(16).padStart(2, "0");
-      return hex;
-    }
+    if (encoding === "base64") return b64encode(data);
+    if (encoding === "hex") return hexEncode(data);
     throw fsError(
       "ERR_ENCODING_INVALID_ENCODED_DATA",
       `unknown encoding: ${encoding}`,
