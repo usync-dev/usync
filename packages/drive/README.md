@@ -13,7 +13,7 @@ The design centers on a small set of provider implementations plus shared base c
 
 | Entry                                                                                                                                            | Contents                                                                                          |
 | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| `@usync/drive`<br>[![BundleJS](https://deno.bundlejs.com/badge?q=@usync/drive&badge=detailed)](https://bundlejs.com/?q=@usync/drive)             | `connectDrive` and the built-in providers: Google Drive, Dropbox, OneDrive, S3, WebDAV            |
+| `@usync/drive`<br>[![BundleJS](https://deno.bundlejs.com/badge?q=@usync/drive&badge=detailed)](https://bundlejs.com/?q=@usync/drive)             | `connectDrive` and the built-in providers: Google Drive, Dropbox, OneDrive, S3, WebDAV, GitHub Contents |
 | `@usync/drive/git`<br>[![BundleJS](https://deno.bundlejs.com/badge?q=@usync/drive/git&badge=detailed)](https://bundlejs.com/?q=@usync/drive/git) | The `Git` provider (smart-HTTP) and `MemoryFs`; separate entry because it pulls in isomorphic-git |
 
 The `git` entry is not registered by default — pass it to `connectDrive`:
