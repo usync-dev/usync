@@ -251,11 +251,9 @@ export class Git extends AuthenticatedDriveBase {
 
   /** Push everything staged so far without waiting for the debounce delay. */
   async flush(): Promise<void> {
-    if (this.#batch) {
-      await this.#runBatch();
-    } else if (this.#pendingPush) {
-      await this.#withLock(() => this.#commitAndPush(), false);
-    }
+    // the lock queues behind any in-flight staging so its batch is registered
+    // before we decide there is nothing to drain
+    await this.#withLock(() => this.#drain(), false);
   }
 
   async *list(parent?: EntryRef): AsyncGenerator<IRemoteFile[]> {
@@ -335,9 +333,11 @@ export class Git extends AuthenticatedDriveBase {
   }
 
   async put(param: EntryRef | ChildRef, data: Blob): Promise<IRemoteFile> {
-    const bytes = new Uint8Array(await data.arrayBuffer());
-    const { oid } = await git.hashBlob({ object: bytes });
-    const [batch, stagedPath] = await this.#withLock(async () => {
+    // enter the lock before any await so flush() queues behind this write's
+    // staging and cannot conclude there is nothing to drain
+    const [batch, stagedPath, oid, size] = await this.#withLock(async () => {
+      const bytes = new Uint8Array(await data.arrayBuffer());
+      const { oid } = await git.hashBlob({ object: bytes });
       await this.#ensureRepo();
       const path = await this.#refPath(param);
       if (!path) throw new Error("Invalid path");
@@ -351,13 +351,13 @@ export class Git extends AuthenticatedDriveBase {
         filepath: rel,
         force: true,
       });
-      return [this.#scheduleFlush(), path] as const;
+      return [this.#scheduleFlush(), path, oid, bytes.length] as const;
     });
     await batch.promise;
     return {
       id: oid,
       name: "name" in param ? param.name : path_basename(stagedPath),
-      size: bytes.length,
+      size,
       kind: "file",
       modifiedTime: new Date().toISOString(),
     };
@@ -436,25 +436,27 @@ export class Git extends AuthenticatedDriveBase {
       promise.catch(() => {});
       this.#batch = { promise, resolve, reject };
       this.#timer = setTimeout(() => {
-        void this.#runBatch();
+        void this.#withLock(() => this.#drain(), false);
       }, this.#flushDelay);
     }
     return this.#batch;
   }
 
-  async #runBatch(): Promise<void> {
-    const batch = this.#batch;
-    if (!batch) return;
-    this.#batch = null;
+  /** Commit and push the pending batch; must run under the lock. */
+  async #drain(): Promise<void> {
     if (this.#timer) {
       clearTimeout(this.#timer);
       this.#timer = null;
     }
+    const batch = this.#batch;
+    this.#batch = null;
+    if (!batch && !this.#pendingPush) return;
     try {
-      await this.#withLock(() => this.#commitAndPush(), false);
-      batch.resolve();
+      await this.#commitAndPush();
+      batch?.resolve();
     } catch (error) {
-      batch.reject(error);
+      if (batch) batch.reject(error);
+      else throw error;
     }
   }
 

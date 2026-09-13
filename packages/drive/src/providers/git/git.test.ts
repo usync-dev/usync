@@ -203,6 +203,16 @@ describe("Git drive provider", () => {
     expect(await server.commitCount()).toBe(1);
   });
 
+  it("flushes a write that is still being staged", async () => {
+    const server = new MockGitServer();
+    const drive = makeDrive(server, { flushDelay: 60_000 });
+    const put = drive.put({ path: "late.txt" }, blobOf("late"));
+    await drive.flush();
+    const saved = await put;
+    expect(saved.name).toBe("late.txt");
+    expect(await server.commitCount()).toBe(1);
+  });
+
   it("pushes with the default per-write behaviour when flushDelay is zero", async () => {
     const server = new MockGitServer();
     const drive = makeDrive(server, { flushDelay: 0 });
