@@ -8,6 +8,7 @@ import {
 } from "@usync/oauth2";
 import { AuthenticatedDriveBase, type DriveContext } from "./providers/base";
 import { Dropbox } from "./providers/dropbox";
+import { GithubContents } from "./providers/github-contents";
 import { GoogleDrive } from "./providers/googledrive";
 import { OneDrive } from "./providers/onedrive";
 import { S3 } from "./providers/s3";
@@ -38,6 +39,7 @@ const builtinProviders: Record<string, DriveProviderConstructor> = {
   onedrive: OneDrive,
   s3: S3,
   webdav: WebDav,
+  "github-contents": GithubContents,
 };
 
 function isAuthError(error: unknown) {
