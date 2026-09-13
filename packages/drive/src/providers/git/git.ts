@@ -1,7 +1,8 @@
 import * as git from "isomorphic-git";
 
 import type { ChildRef, EntryRef, IAuthConfig, IRemoteFile } from "../../types";
-import { SimpleRequestError, b64encode } from "../../util";
+import { b64encode } from "@usync/util";
+import { SimpleRequestError } from "../../util";
 import {
   AuthenticatedDriveBase,
   type DriveContext,

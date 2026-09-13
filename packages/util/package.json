@@ -1,13 +1,13 @@
 {
-  "name": "@usync/oauth2",
-  "version": "0.1.7",
-  "description": "OAuth2 support for provider-based authorization flows and token management.",
-  "homepage": "https://github.com/usync-dev/usync/tree/main/packages/oauth2",
+  "name": "@usync/util",
+  "version": "0.1.0",
+  "description": "Shared low-level utilities (base64/hex encoding helpers) for usync packages.",
+  "homepage": "https://github.com/usync-dev/usync/tree/main/packages/util",
   "license": "ISC",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/usync-dev/usync.git",
-    "directory": "packages/oauth2"
+    "directory": "packages/util"
   },
   "files": [
     "dist"
@@ -29,10 +29,7 @@
     "build:types": "tsc",
     "build:js": "vite build",
     "build": "pnpm clean && pnpm build:js && pnpm build:types",
+    "test": "vitest --run",
     "prepublishOnly": "pnpm build"
-  },
-  "dependencies": {
-    "@usync/util": "workspace:^",
-    "nanoid": "^5.1.11"
   }
 }

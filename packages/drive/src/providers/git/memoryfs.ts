@@ -1,4 +1,4 @@
-import {b64encode, hexEncode} from "../../util";
+import { b64encode, hexEncode } from "@usync/util";
 
 interface FsEntry {
   type: "file" | "dir" | "symlink";
