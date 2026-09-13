@@ -12,6 +12,11 @@ import {
   withDelay,
 } from "./base";
 
+/**
+ * Limits inherited from the underlying contents API: `list()` returns at
+ * most 1000 entries per directory (not paginated), and `get()` can only
+ * read files up to 1 MB.
+ */
 export interface IGithubContentsServerOptions {
   /** Default: GitHub.com's API. Override for GHES/Gitea/Forgejo. */
   apiBase?: string;
