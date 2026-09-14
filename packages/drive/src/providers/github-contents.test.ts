@@ -21,7 +21,9 @@ function makeFakeFetch(
     calls.push({ url, method, body, headers });
     const entry = routes[key] ?? routes[`${method} ${parsed.pathname}`];
     if (!entry) {
-      throw new Error(`Unhandled fake request: ${key}\nKnown routes: ${Object.keys(routes).join(", ")}`);
+      throw new Error(
+        `Unhandled fake request: ${key}\nKnown routes: ${Object.keys(routes).join(", ")}`,
+      );
     }
     const { status, body: resBody } = typeof entry === "function" ? entry(init || {}) : entry;
     return new Response(resBody != null ? JSON.stringify(resBody) : null, {
@@ -70,7 +72,9 @@ describe("GithubContents", () => {
     });
     const drive = makeDrive(fetchImpl, { apiBase: "https://code.example.org/api/v1" });
     for await (const _batch of drive.list()) break;
-    expect(calls[0].url).toBe("https://code.example.org/api/v1/repos/alice/scripts/contents?ref=main");
+    expect(calls[0].url).toBe(
+      "https://code.example.org/api/v1/repos/alice/scripts/contents?ref=main",
+    );
   });
 
   it("lists files, filtering out unsupported entry kinds and mapping dir->folder", async () => {
@@ -126,7 +130,9 @@ describe("GithubContents", () => {
     const drive = makeDrive(fetchImpl, { pathPrefix: "backup" });
     const batches: any[] = [];
     for await (const batch of drive.list()) batches.push(...batch);
-    expect(calls[0].url).toBe("https://api.github.com/repos/alice/scripts/contents/backup?ref=main");
+    expect(calls[0].url).toBe(
+      "https://api.github.com/repos/alice/scripts/contents/backup?ref=main",
+    );
     expect(batches[0].id).toBe("a.user.js");
   });
 
@@ -139,11 +145,29 @@ describe("GithubContents", () => {
           ? { status: 404, body: { message: "Not Found" } }
           : {
               status: 200,
-              body: { name: "blob.bin", path: "blob.bin", sha: "s1", size: bytes.length, type: "file", content: stored },
+              body: {
+                name: "blob.bin",
+                path: "blob.bin",
+                sha: "s1",
+                size: bytes.length,
+                type: "file",
+                content: stored,
+              },
             },
       "PUT /repos/alice/scripts/contents/blob.bin": (init) => {
         stored = (JSON.parse(init.body as string) as { content: string }).content;
-        return { status: 201, body: { content: { name: "blob.bin", path: "blob.bin", sha: "s2", size: bytes.length, type: "file" } } };
+        return {
+          status: 201,
+          body: {
+            content: {
+              name: "blob.bin",
+              path: "blob.bin",
+              sha: "s2",
+              size: bytes.length,
+              type: "file",
+            },
+          },
+        };
       },
     });
     const drive = makeDrive(fetchImpl);
@@ -162,7 +186,15 @@ describe("GithubContents", () => {
     const { fetchImpl } = makeFakeFetch({
       "GET /repos/alice/scripts/contents/foo.user.js": {
         status: 200,
-        body: { name: "foo.user.js", path: "foo.user.js", sha: "s1", size: text.length, type: "file", content, encoding: "base64" },
+        body: {
+          name: "foo.user.js",
+          path: "foo.user.js",
+          sha: "s1",
+          size: text.length,
+          type: "file",
+          content,
+          encoding: "base64",
+        },
       },
     });
     const drive = makeDrive(fetchImpl);
@@ -172,25 +204,53 @@ describe("GithubContents", () => {
 
   it("put() creates a new file without a sha when none exists yet, using PUT by default (GitHub)", async () => {
     const { fetchImpl, calls } = makeFakeFetch({
-      "GET /repos/alice/scripts/contents/new.user.js": { status: 404, body: { message: "Not Found" } },
+      "GET /repos/alice/scripts/contents/new.user.js": {
+        status: 404,
+        body: { message: "Not Found" },
+      },
       "PUT /repos/alice/scripts/contents/new.user.js": {
         status: 201,
-        body: { content: { name: "new.user.js", path: "new.user.js", sha: "newsha", size: 3, type: "file" } },
+        body: {
+          content: {
+            name: "new.user.js",
+            path: "new.user.js",
+            sha: "newsha",
+            size: 3,
+            type: "file",
+          },
+        },
       },
     });
     const drive = makeDrive(fetchImpl);
     const item = await drive.put({ parent: {}, name: "new.user.js" }, new Blob(["abc"]));
-    expect(item).toEqual({ id: "new.user.js", name: "new.user.js", size: 3, kind: "file", modifiedTime: "" });
+    expect(item).toEqual({
+      id: "new.user.js",
+      name: "new.user.js",
+      size: 3,
+      kind: "file",
+      modifiedTime: "",
+    });
     const putCall = calls.find((c) => c.method === "PUT")!;
     expect(putCall.body).not.toHaveProperty("sha");
   });
 
   it("put() creates via POST when createMethod is 'post' (Gitea/Forgejo)", async () => {
     const { fetchImpl, calls } = makeFakeFetch({
-      "GET /repos/alice/scripts/contents/new.user.js": { status: 404, body: { message: "Not Found" } },
+      "GET /repos/alice/scripts/contents/new.user.js": {
+        status: 404,
+        body: { message: "Not Found" },
+      },
       "POST /repos/alice/scripts/contents/new.user.js": {
         status: 201,
-        body: { content: { name: "new.user.js", path: "new.user.js", sha: "newsha", size: 3, type: "file" } },
+        body: {
+          content: {
+            name: "new.user.js",
+            path: "new.user.js",
+            sha: "newsha",
+            size: 3,
+            type: "file",
+          },
+        },
       },
     });
     const drive = makeDrive(fetchImpl, { createMethod: "post" });
@@ -203,11 +263,25 @@ describe("GithubContents", () => {
     const { fetchImpl, calls } = makeFakeFetch({
       "GET /repos/alice/scripts/contents/existing.user.js": {
         status: 200,
-        body: { name: "existing.user.js", path: "existing.user.js", sha: "oldsha", size: 1, type: "file" },
+        body: {
+          name: "existing.user.js",
+          path: "existing.user.js",
+          sha: "oldsha",
+          size: 1,
+          type: "file",
+        },
       },
       "PUT /repos/alice/scripts/contents/existing.user.js": {
         status: 200,
-        body: { content: { name: "existing.user.js", path: "existing.user.js", sha: "newsha", size: 3, type: "file" } },
+        body: {
+          content: {
+            name: "existing.user.js",
+            path: "existing.user.js",
+            sha: "newsha",
+            size: 3,
+            type: "file",
+          },
+        },
       },
     });
     const drive = makeDrive(fetchImpl, { createMethod: "post" });
@@ -224,13 +298,31 @@ describe("GithubContents", () => {
         getCount += 1;
         return {
           status: 200,
-          body: { name: "race.user.js", path: "race.user.js", sha: getCount === 1 ? "stale-sha" : "fresh-sha", size: 1, type: "file" },
+          body: {
+            name: "race.user.js",
+            path: "race.user.js",
+            sha: getCount === 1 ? "stale-sha" : "fresh-sha",
+            size: 1,
+            type: "file",
+          },
         };
       },
       "PUT /repos/alice/scripts/contents/race.user.js": () => {
         putCount += 1;
-        if (putCount === 1) return { status: 409, body: { message: "race.user.js does not match fresh-sha" } };
-        return { status: 200, body: { content: { name: "race.user.js", path: "race.user.js", sha: "newest-sha", size: 3, type: "file" } } };
+        if (putCount === 1)
+          return { status: 409, body: { message: "race.user.js does not match fresh-sha" } };
+        return {
+          status: 200,
+          body: {
+            content: {
+              name: "race.user.js",
+              path: "race.user.js",
+              sha: "newest-sha",
+              size: 3,
+              type: "file",
+            },
+          },
+        };
       },
     });
     const drive = makeDrive(fetchImpl);
@@ -246,7 +338,13 @@ describe("GithubContents", () => {
     const { fetchImpl } = makeFakeFetch({
       "GET /repos/alice/scripts/contents/stuck.user.js": {
         status: 200,
-        body: { name: "stuck.user.js", path: "stuck.user.js", sha: "some-sha", size: 1, type: "file" },
+        body: {
+          name: "stuck.user.js",
+          path: "stuck.user.js",
+          sha: "some-sha",
+          size: 1,
+          type: "file",
+        },
       },
       "PUT /repos/alice/scripts/contents/stuck.user.js": {
         status: 409,
@@ -261,7 +359,13 @@ describe("GithubContents", () => {
     const { fetchImpl, calls } = makeFakeFetch({
       "GET /repos/alice/scripts/contents/gone.user.js": {
         status: 200,
-        body: { name: "gone.user.js", path: "gone.user.js", sha: "deadbeef", size: 1, type: "file" },
+        body: {
+          name: "gone.user.js",
+          path: "gone.user.js",
+          sha: "deadbeef",
+          size: 1,
+          type: "file",
+        },
       },
       "DELETE /repos/alice/scripts/contents/gone.user.js": { status: 200, body: { commit: {} } },
     });
@@ -279,7 +383,13 @@ describe("GithubContents", () => {
         getCount += 1;
         return {
           status: 200,
-          body: { name: "gone-race.user.js", path: "gone-race.user.js", sha: getCount === 1 ? "stale-sha" : "fresh-sha", size: 1, type: "file" },
+          body: {
+            name: "gone-race.user.js",
+            path: "gone-race.user.js",
+            sha: getCount === 1 ? "stale-sha" : "fresh-sha",
+            size: 1,
+            type: "file",
+          },
         };
       },
       "DELETE /repos/alice/scripts/contents/gone-race.user.js": () => {
