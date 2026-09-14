@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@usync/oauth2": "workspace:^",
+    "@usync/util": "workspace:^",
     "isomorphic-git": "^1.42.0"
   }
 }

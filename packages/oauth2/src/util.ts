@@ -1,12 +1,5 @@
 import { nanoid } from "nanoid";
-
-function b64urlEncode(data: Uint8Array): string {
-  let binary = "";
-  for (const byte of data) {
-    binary += String.fromCharCode(byte);
-  }
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
+import { b64urlDecode, b64urlEncode } from "@usync/util";
 
 export function getState() {
   return nanoid(8);
@@ -30,10 +23,7 @@ export function getNonce() {
 export function decodeJwtPayload(token: string): Record<string, unknown> {
   const parts = token.split(".");
   if (parts.length !== 3) throw new Error("Invalid JWT");
-  const binary = atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"));
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  const decoded = new TextDecoder("utf-8").decode(bytes);
+  const decoded = new TextDecoder("utf-8").decode(b64urlDecode(parts[1]));
   return JSON.parse(decoded);
 }
 

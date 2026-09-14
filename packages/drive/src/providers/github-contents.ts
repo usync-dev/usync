@@ -3,7 +3,8 @@
 // place their behavior actually diverges.
 // Reference: https://docs.github.com/en/rest/repos/contents
 import type { ChildRef, EntryRef, IAuthConfig, IRemoteFile } from "../types";
-import { b64decode, b64encode, simpleRequest, SimpleRequestError } from "../util";
+import { b64decode, b64encode } from "@usync/util";
+import { simpleRequest, SimpleRequestError } from "../util";
 import {
   AuthenticatedDriveBase,
   type DriveContext,
